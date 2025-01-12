@@ -1,0 +1,16 @@
+{
+  "_checkout": "2022.6.3",
+  "_output_dir": "/Users/fukai/projects/tensorstore_trackarr",
+  "_repo_dir": "/Users/fukai/.cookiecutters/cookiecutter-hypermodern-python",
+  "_template": "gh:cjolowicz/cookiecutter-hypermodern-python",
+  "author": "Yohsuke T. Fukai",
+  "copyright_year": "2025",
+  "development_status": "Development Status :: 1 - Planning",
+  "email": "ysk@yfukai.net",
+  "friendly_name": "Tensorstore Trackarr",
+  "github_user": "yfukai",
+  "license": "MIT",
+  "package_name": "tensorstore_trackarr",
+  "project_name": "tensorstore-trackarr",
+  "version": "0.0.0"
+}
