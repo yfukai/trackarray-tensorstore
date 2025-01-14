@@ -180,7 +180,7 @@ def test_update_track_df():
 def test_trackarr_fixture_always_new(labels_dir, trackarr_from_name):
     ta, _, _ = trackarr_from_name("original")
     with ts.Transaction() as txn:
-        ta.swap_tracks(1,2,txn)
+        ta.add_mask(0, 1, (10,10), np.ones((100,100),dtype=bool), txn)
     ta2, _, _ = trackarr_from_name("original")
     assert np.any(np.array(ta.array) != np.array(ta2.array))
     np.load(labels_dir / "original_labels.npy")
