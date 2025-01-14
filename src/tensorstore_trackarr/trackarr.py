@@ -23,7 +23,7 @@ def to_bbox_df(label: npt.ArrayLike) -> pd.DataFrame:
     del bbox_df['bbox-0'], bbox_df['bbox-1'], bbox_df['bbox-2'], bbox_df['bbox-3']
     return bbox_df
 
-class TrackArr:
+class TrackArray:
     def __init__(self, ts_array, splits, termination_annotations, bboxes_df=None):
         self.array = ts_array
         if bboxes_df is None:

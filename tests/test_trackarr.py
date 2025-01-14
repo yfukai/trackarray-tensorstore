@@ -136,7 +136,7 @@ def trackarr(tmpdir):
             l: f"terminate {l}" for l in unique_labels if l % 2 == 0
         }
         
-        return tta.TrackArr(ts_read, split_dict, termination_annotations, bbox_df)
+        return tta.TrackArray(ts_read, split_dict, termination_annotations, bbox_df)
     
     return _generate_trackarr
 
