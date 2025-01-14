@@ -8,7 +8,7 @@ from glob import glob
 from copy import deepcopy
 from skimage.util import map_array
 import itertools
-import os
+import re
 
 def get_spec(ndims):
     return {
@@ -267,12 +267,50 @@ def test_add_mask(trackarr_from_name):
         ta, labels, _ = trackarr_from_name("original")    
         with ts.Transaction() as txn:
             ta.add_mask(frame, new_label, (10,10), np.ones((100,100),dtype=bool), txn)
-        assert np.all(ta.array[frame, 10:110, 10:110] == new_label)
+        assert np.all(np.array(ta.array)[frame, 10:110, 10:110] == new_label)
         assert ta.is_valid()
     
-def test_update_mask():
-    pass
+def test_update_mask(trackarr_from_name):
+    ta, labels, _ = trackarr_from_name("original")
+    assert 1 in labels[0].ravel()
+    original_inds = np.where(labels[0] == 1)
+    with ts.Transaction() as txn:
+        ta.update_mask(0, 1, (10,10), np.ones((100,100),dtype=bool), txn)
+    assert ta.is_valid()
+    assert np.all(np.array(ta.array)[0, 10:110, 10:110] == 1)
+    
+    for i in zip(*original_inds):
+        if i[0] in range(10,110) and i[1] in range(10,110):
+            assert np.all(np.array(ta.array)[0, i[0], i[1]] == 1)
+        else:
+            assert np.all(np.array(ta.array)[0, i[0], i[1]] != 1)
 
-def test_terminate_track():
-    pass
+def test_terminate_track(trackarr_from_name):
+    test_names = ["frame2_8terminate", "frame4_1terminate"]
+    
+    for test_name in test_names:
+        ta2, labels2, _ = trackarr_from_name(test_name)
+        terminate_frame, terminate_label = re.search(r"frame(\d+)_(\d+)terminate", test_name).groups()
+        terminate_frame = int(terminate_frame)
+        terminate_label = int(terminate_label)
 
+        with ts.Transaction() as txn:
+            ta, labels, _ = trackarr_from_name("original")
+            assert np.any(labels != labels2)
+            ta.terminate_track(terminate_frame, terminate_label, "test_annotation", txn)
+        assert np.all(np.array(ta.array) == labels2) 
+        assert compare_nested_structures(ta.splits, ta2.splits)
+        ta2.termination_annotations[terminate_label] = "test_annotation"
+        assert compare_nested_structures(ta.termination_annotations, ta2.termination_annotations)
+
+def test_split(trackarr_from_name):
+    ta2, labels2, _ = trackarr_from_name("frame7_3split_to_18_and_20")
+    ta, labels, _ = trackarr_from_name("original")
+    assert np.any(labels != labels2)
+    daughter_start_frame = 7
+    parent_trackid = 3
+    daughter_tracks = [18, 20]
+    with ts.Transaction() as txn:
+        ta.add_split(daughter_start_frame, parent_trackid, daughter_tracks, txn)
+    assert np.all(np.array(ta.array) == labels2)
+    assert compare_nested_structures(ta.splits, ta2.splits)
