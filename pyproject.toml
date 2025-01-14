@@ -18,6 +18,10 @@ Changelog = "https://github.com/yfukai/tensorstore-trackarr/releases"
 [tool.poetry.dependencies]
 python = "^3.10"
 click = ">=8.0.1"
+tensorstore = "^0.1.71"
+numpy = "^2.2.1"
+pandas = "^2.2.3"
+scikit-image = "^0.25.0"
 
 [tool.poetry.dev-dependencies]
 Pygments = ">=2.10.0"
@@ -47,6 +51,9 @@ myst-parser = {version = ">=0.16.1"}
 
 [tool.poetry.scripts]
 tensorstore-trackarr = "tensorstore_trackarr.__main__:main"
+
+[tool.poetry.group.dev.dependencies]
+pytest-datadir = "^1.5.0"
 
 [tool.coverage.paths]
 source = ["src", "*/site-packages"]
