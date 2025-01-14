@@ -146,6 +146,7 @@ class TrackArray:
         possibly_updated_labels = set(possibly_updated_labels) - {0, trackid}
         array_txn[frame, y_window[0]:y_window[1], x_window[0]:x_window[1]][ts.d[:].translate_to[0]][mask2] = trackid
         
+        # Add entry to the bboxes_df
         self.bboxes_df = pd.concat([self.bboxes_df, pd.DataFrame({
             'min_y':y_window[0],
             'min_x':x_window[0],
@@ -153,6 +154,8 @@ class TrackArray:
             'max_x':x_window[1],
         },
         index=pd.MultiIndex.from_tuples([(frame, trackid)], names=['frame', 'label']))])
+
+        # Update the bboxes_df for the possibly updated labels by overlapping with the new mask
         for updated_label in possibly_updated_labels:
             row = self.bboxes_df.loc[(frame, updated_label)]
             sublabel = array_txn[frame, row.min_y:row.max_y, row.min_x:row.max_x]
@@ -166,6 +169,10 @@ class TrackArray:
                 self.bboxes_df.drop(index=(frame, updated_label), inplace=True)
             if self._get_track_bboxes(updated_label).empty:
                 self._cleanup_track(updated_label)
+
+        #TODO update splits and termination_annotations
+        # invalidate splits and termination_annotations if the frame is later than the last frame of the original track
+        # invalidate splits and termination_annotations if the frame is earlier than the first frame of the original track
         
         self.update_track_df()
         
