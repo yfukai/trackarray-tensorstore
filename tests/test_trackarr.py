@@ -1,4 +1,4 @@
-import tensorstore_trackarr.trackarr as tta
+import tensorstore_trackarr as tta
 import numpy as np
 import pytest
 import json
