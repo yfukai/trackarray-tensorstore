@@ -194,43 +194,6 @@ def test_validate(trackarr_from_name, all_label_filenames):
         ta.bboxes_df.loc[(0,1), "min_y"] = 0
         assert not ta.is_valid()
 
-def test_swap_tracks(trackarr_from_name):
-    _, labels, _ = trackarr_from_name("original")
-    
-    unique_labels = np.unique(labels)
-    unique_labels = unique_labels[unique_labels != 0]
-    map_dict = {l:l for l in unique_labels}
-    
-    for l1, l2 in itertools.combinations(unique_labels, 2):
-        ta, labels, split_dict = trackarr_from_name("original")
-        termination_annotations = deepcopy(ta.termination_annotations)
-        
-        with ts.Transaction() as txn:
-            ta.swap_tracks(l1, l2, txn)
-        split_dict2 = ta.splits
-        
-        map_dict2 = deepcopy(map_dict)
-        map_dict2[l1] = l2
-        map_dict2[l2] = l1
-        from_vals = np.array(list(map_dict2.keys()))
-        to_vals = np.array(list(map_dict2.values()))
-        labels2 = map_array(labels, from_vals, to_vals)
-        
-        assert np.all(labels2 == np.array(ta.array))
-        
-        split_dict_swapped = swap_values(split_dict, l1, l2)
-        assert compare_nested_structures(split_dict_swapped, split_dict2)
-        
-        termination_annotations_swapped = {}
-        for k, v in termination_annotations.items():
-            if k == l1:
-                termination_annotations_swapped[l2] = v
-            elif k == l2:
-                termination_annotations_swapped[l1] = v
-            else:
-                termination_annotations_swapped[k] = v
-        assert termination_annotations_swapped == ta.termination_annotations
-
 def test_delete_mask(trackarr_from_name):
     ta, labels, _ = trackarr_from_name("original")    
     unique_labels = np.unique(labels)

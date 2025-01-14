@@ -4,6 +4,7 @@ from typing import Sequence
 from numpy import typing as npt
 import pandas as pd
 from skimage.measure import regionprops_table
+from typing import Optional
 
 
 def to_bbox_df(label: npt.ArrayLike) -> pd.DataFrame:
@@ -51,67 +52,12 @@ class TrackArray:
         row = self.bboxes_df.loc[(frame, trackid)]
         subarr = array_txn[frame, row.min_y:row.max_y, row.min_x:row.max_x]
         ind = np.array(subarr) == trackid
-        subarr[ts.d[:].translate_to[0]][ind] = new_trackid
+        subarr[ts.d[:].translate_to[0]][ind] = new_trackid # Replace the trackid with the new_trackid
         self.bboxes_df.index = self.bboxes_df.index.map(lambda x: (frame, new_trackid) if x == (frame, trackid) else x)
         
         if not skip_update:
             self.update_track_df()
-        
-    def swap_tracks(self, trackid1: int, trackid2:int, txn: ts.Transaction):
-        array_txn = self.array.with_transaction(txn)
-        
-        # Find the bboxes of the two tracks
-        bboxes_df1 = self._get_track_bboxes(trackid1).reset_index()
-        bboxes_df2 = self._get_track_bboxes(trackid2).reset_index()
-        
-        # Store regions of the two tracks
-        bboxes_dfs = [bboxes_df1, bboxes_df2]
-        indss = []
-        for _bboxes_df, trackid in zip(bboxes_dfs,[trackid1,trackid2]):
-            inds = []
-            for row in _bboxes_df.itertuples():
-                subarr = array_txn[row.frame, row.min_y:row.max_y, row.min_x:row.max_x]
-                inds.append(np.array(subarr) == trackid)
-            indss.append(inds)
-
-        # Swap the regions
-        for _bboxes_df, _inds, new_trackid in zip(bboxes_dfs, indss,[trackid2,trackid1]):
-            for row, ind in zip(_bboxes_df.itertuples(), _inds):
-                array_txn[row.frame, row.min_y:row.max_y, row.min_x:row.max_x][ts.d[:].translate_to[0]][ind] = new_trackid
-        
-        # Update bboxes_df
-        self.bboxes_df = self.bboxes_df.rename(index={trackid1: trackid2, trackid2: trackid1}, level='label')
-        self.update_track_df()
-        
-        # Update splits
-        _splits = self.splits.copy()
-        for parent, daughters in _splits.items():
-            if parent == trackid1:
-                _parent = trackid2
-                del self.splits[parent]
-            elif parent == trackid2:
-                _parent = trackid1
-                del self.splits[parent]
-            else:
-                _parent = parent
-            _daughters = []
-            for daughter in daughters:
-                if daughter == trackid1:
-                    _daughters.append(trackid2)
-                elif daughter == trackid2:
-                    _daughters.append(trackid1)
-                else:
-                    _daughters.append(daughter)
-            self.splits[_parent] = _daughters
-            
-        # Update termination_annotations
-        tas = [self.termination_annotations.pop(trackid2, None), 
-               self.termination_annotations.pop(trackid1, None)]
-        if tas[0] is not None:
-            self.termination_annotations[trackid1] = tas[0]
-        if tas[1] is not None:
-            self.termination_annotations[trackid2] = tas[1]
-        
+                
     def _cleanup_track(self, trackid: int):
         self.termination_annotations.pop(trackid, None)
         self.splits.pop(trackid, None)
@@ -189,34 +135,53 @@ class TrackArray:
         self.termination_annotations[trackid] = annotation
         self.splits.pop(trackid, None)
     
-    def break_track(self, new_start_frame:int, trackid: int, change_after, txn: ts.Transaction):
-        safe_track_id = self._get_safe_track_id()
+    def break_track(self, 
+                    new_start_frame:int, 
+                    trackid: int, 
+                    change_after:bool, 
+                    txn: ts.Transaction,
+                    new_trackid: Optional[int] =None):
+        if new_trackid is None:
+            new_trackid = self._get_safe_track_id()
         bboxes_df = self._get_track_bboxes(trackid).reset_index()
         if change_after:
             bboxes_df = bboxes_df[bboxes_df.frame >= new_start_frame]
         else:
             bboxes_df = bboxes_df[bboxes_df.frame < new_start_frame]
+            
+        if change_after and bboxes_df.frame.min() == new_start_frame:
+            # Delete the splits for which this track is a daughter
+            _splits = self.splits.copy()
+            for parent, daughters in _splits.items():
+                if trackid in daughters:
+                    daughters.remove(trackid)
+                    self.splits[parent] = daughters
+        if not change_after and bboxes_df.frame.max() == new_start_frame - 1:
+            # Delete the splits for which this track is a parent
+            self.splits.pop(trackid, None)
+            
         for frame in bboxes_df.frame:
-            self._update_trackid(frame, trackid, safe_track_id, txn, skip_update=True)
+            self._update_trackid(frame, trackid, new_trackid, txn, skip_update=True)
         self.update_track_df()
 
         if change_after:
             # Update splits
             if trackid in self.splits:
                 daughters = self.splits.pop(trackid)
-                self.splits[safe_track_id] = daughters
+                self.splits[new_trackid] = daughters
             # Update termination_annotations
             if trackid in self.termination_annotations:
-                self.termination_annotations[safe_track_id] = self.termination_annotations.pop(trackid)
+                self.termination_annotations[new_trackid] = self.termination_annotations.pop(trackid)
         else:
             # Update splits
-            for parent, daughters in self.splits.copy().items():
+            _splits = self.splits.copy()
+            for parent, daughters in _splits.items():
                 if trackid in daughters:
                     daughters.remove(trackid)
-                    daughters.append(safe_track_id)
+                    daughters.append(new_trackid)
                     self.splits[parent] = daughters
                     
-        return safe_track_id
+        return new_trackid
     
     def add_split(self, daughter_start_frame:int, parent_trackid, daughter_trackids, txn: ts.Transaction):
         new_track_id = self.break_track(daughter_start_frame, parent_trackid, change_after=True, txn=txn)
