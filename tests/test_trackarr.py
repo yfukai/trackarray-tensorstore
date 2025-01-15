@@ -271,7 +271,7 @@ def test_split(trackarr_from_name):
     assert np.any(labels != labels2)
     daughter_start_frame = 7
     parent_trackid = 3
-    daughter_tracks = [18, 20]
+    daughter_tracks = [18, 3]
     with ts.Transaction() as txn:
         ta.add_split(daughter_start_frame, parent_trackid, daughter_tracks, txn)
     assert np.all(np.array(ta.array) == labels2)

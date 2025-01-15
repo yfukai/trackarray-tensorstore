@@ -200,7 +200,8 @@ class TrackArray:
         return new_trackid
     
     def add_split(self, daughter_start_frame:int, parent_trackid, daughter_trackids, txn: ts.Transaction):
-        self.break_track(daughter_start_frame, parent_trackid, change_after=True, txn=txn)
+        new_trackid = self.break_track(daughter_start_frame, parent_trackid, change_after=True, txn=txn)
+        daughter_trackids = [i if i != parent_trackid else new_trackid for i in daughter_trackids]
         for daughter_trackid in daughter_trackids:
             self.break_track(daughter_start_frame, daughter_trackid, change_after=False, txn=txn)
         self.splits[parent_trackid] = daughter_trackids
