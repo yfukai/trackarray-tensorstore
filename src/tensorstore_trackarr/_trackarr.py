@@ -52,6 +52,9 @@ class TrackArray:
         return row[["min_y", "min_x", "max_y", "max_x"]]
         
     def _update_trackid(self, frame: int, trackid: int, new_trackid: int, txn: ts.Transaction, skip_update=False):
+        if (frame, new_trackid) in self.bboxes_df.index:
+            raise ValueError("new_trackid already exists in the bboxes_df")
+        
         array_txn = self.array.with_transaction(txn)
         min_y, min_x, max_y, max_x = self.__get_bbox(frame, trackid)
         subarr = array_txn[frame, min_y:max_y, min_x:max_x]
@@ -157,15 +160,16 @@ class TrackArray:
         for frame in change_bboxes_df.frame:
             if (frame, new_trackid) in self.bboxes_df.index:
                 raise ValueError("new_trackid already exists in the bboxes_df")
-            
-        if change_after and bboxes_df.frame.min() == new_start_frame:
+        
+        # Add the "break point" to the splits 
+        if bboxes_df.frame.min() == new_start_frame:
             # Delete the splits for which this track is a daughter
             _splits = self.splits.copy()
             for parent, daughters in _splits.items():
                 if trackid in daughters:
                     daughters.remove(trackid)
                     self.splits[parent] = daughters
-        if not change_after and (bboxes_df.frame.max()+1 == new_start_frame):
+        if bboxes_df.frame.max()+1 == new_start_frame:
             # Delete the splits for which this track is a parent
             self.splits.pop(trackid, None)
             

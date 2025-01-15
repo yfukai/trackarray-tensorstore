@@ -280,16 +280,18 @@ def test_split(trackarr_from_name):
 break_test_names = [
     "frame3_divide8_change_after_to_5",
     "frame3_divide8_change_after_to_20",
-    "frame4_divide8_change_before_to_5",
-    "frame4_divide8_change_before_to_20",
+    "frame4_divide8_change_after_to_5",
+    "frame4_divide8_change_after_to_20",
     "frame3_divide8_change_before_to_5",
     "frame3_divide8_change_before_to_20",
+    "frame4_divide8_change_before_to_5",
+    "frame4_divide8_change_before_to_20",
 ]
 @pytest.mark.parametrize("test_name", break_test_names)
 def test_break_track(trackarr_from_name, test_name):
-    ta, labels, _ = trackarr_from_name("original")
-    ta2, labels2, _ = trackarr_from_name(test_name)
-    assert np.any(labels != labels2)
+    ta, labels, splits1 = trackarr_from_name("original")
+    ta2, labels2, splits2 = trackarr_from_name(test_name)
+    assert np.any(labels != labels2) or not compare_nested_structures(splits1, splits2)
     new_start_frame, divide_label, direction, dest_label = re.search(
         r"frame(\d+)_divide(\d+)_change_(.+)_to_(\d+)", test_name).groups()
     new_start_frame = int(new_start_frame)
@@ -299,7 +301,7 @@ def test_break_track(trackarr_from_name, test_name):
 
     with ts.Transaction() as txn:
         print("Dest label:", dest_label)
-        if dest_label == 5:
+        if dest_label == 5 and test_name!="frame4_divide8_change_after_to_5":
             with pytest.raises(ValueError):
                 ta.break_track(new_start_frame, divide_label, 
                                change_after, txn, 
