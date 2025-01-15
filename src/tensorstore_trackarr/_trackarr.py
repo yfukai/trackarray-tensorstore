@@ -89,6 +89,9 @@ class TrackArray:
         assert mask.shape[0] + mask_origin[0] <= self.array.shape[1]
         assert mask.shape[1] + mask_origin[1] <= self.array.shape[2]
         assert mask.dtype == bool
+        
+        previous_frames = self._get_track_bboxes(trackid).reset_index().frame.copy()
+        
         array_txn = self.array.with_transaction(txn)
         inds = np.where(mask)
         mask_min_y, mask_min_x = np.min(inds, axis=1)
@@ -124,9 +127,17 @@ class TrackArray:
             if self._get_track_bboxes(updated_label).empty:
                 self._cleanup_track(updated_label)
 
-        #TODO update splits and termination_annotations
+        # Update splits and termination_annotations
         # invalidate splits and termination_annotations if the frame is later than the last frame of the original track
-        # invalidate splits and termination_annotations if the frame is earlier than the first frame of the original track
+        if frame > previous_frames.max():
+            self.termination_annotations.pop(trackid, None)
+            self.splits.pop(trackid, None)
+        # invalidate splits if the frame is earlier than the first frame of the original track
+        if frame < previous_frames.min():
+            _splits = self.splits.copy()
+            for parent, daughters in _splits.items():
+                self.splits[int(parent)] = [int(daughter) for daughter in daughters if daughter != trackid]
+            self.cleanup_single_daughter_splits()
         
         self.update_track_df()
         
