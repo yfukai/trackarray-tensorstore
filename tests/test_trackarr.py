@@ -248,23 +248,22 @@ def test_update_mask(trackarr_from_name):
         else:
             assert np.all(np.array(ta.array)[0, i[0], i[1]] != 1)
 
-def test_terminate_track(trackarr_from_name):
-    test_names = ["frame2_8terminate", "frame4_1terminate"]
-    
-    for test_name in test_names:
-        ta2, labels2, _ = trackarr_from_name(test_name)
-        terminate_frame, terminate_label = re.search(r"frame(\d+)_(\d+)terminate", test_name).groups()
-        terminate_frame = int(terminate_frame)
-        terminate_label = int(terminate_label)
 
-        with ts.Transaction() as txn:
-            ta, labels, _ = trackarr_from_name("original")
-            assert np.any(labels != labels2)
-            ta.terminate_track(terminate_frame, terminate_label, "test_annotation", txn)
-        assert np.all(np.array(ta.array) == labels2) 
-        assert compare_nested_structures(ta.splits, ta2.splits)
-        ta2.termination_annotations[terminate_label] = "test_annotation"
-        assert compare_nested_structures(ta.termination_annotations, ta2.termination_annotations)
+@pytest.mark.parametrize("test_name", ["frame2_8terminate", "frame4_1terminate"])
+def test_terminate_track(trackarr_from_name, test_name):
+    ta, labels, _ = trackarr_from_name("original")
+    ta2, labels2, _ = trackarr_from_name(test_name)
+    assert np.any(labels != labels2)
+    terminate_frame, terminate_label = re.search(r"frame(\d+)_(\d+)terminate", test_name).groups()
+    terminate_frame = int(terminate_frame)
+    terminate_label = int(terminate_label)
+
+    with ts.Transaction() as txn:
+        ta.terminate_track(terminate_frame, terminate_label, "test_annotation", txn)
+    assert np.all(np.array(ta.array) == labels2) 
+    assert compare_nested_structures(ta.splits, ta2.splits)
+    ta2.termination_annotations[terminate_label] = "test_annotation"
+    assert compare_nested_structures(ta.termination_annotations, ta2.termination_annotations)
 
 def test_split(trackarr_from_name):
     ta2, labels2, _ = trackarr_from_name("frame7_3split_to_18_and_20")
@@ -277,3 +276,39 @@ def test_split(trackarr_from_name):
         ta.add_split(daughter_start_frame, parent_trackid, daughter_tracks, txn)
     assert np.all(np.array(ta.array) == labels2)
     assert compare_nested_structures(ta.splits, ta2.splits)
+    
+break_test_names = [
+    "frame3_divide8_change_after_to_5",
+    "frame3_divide8_change_after_to_20",
+    "frame4_divide8_change_before_to_5",
+    "frame4_divide8_change_before_to_20",
+    "frame3_divide8_change_before_to_5",
+    "frame3_divide8_change_before_to_20",
+]
+@pytest.mark.parametrize("test_name", break_test_names)
+def test_break_track(trackarr_from_name, test_name):
+    ta, labels, _ = trackarr_from_name("original")
+    ta2, labels2, _ = trackarr_from_name(test_name)
+    assert np.any(labels != labels2)
+    new_start_frame, divide_label, direction, dest_label = re.search(
+        r"frame(\d+)_divide(\d+)_change_(.+)_to_(\d+)", test_name).groups()
+    new_start_frame = int(new_start_frame)
+    divide_label = int(divide_label)
+    dest_label = int(dest_label)
+    change_after = direction == "after"
+
+    with ts.Transaction() as txn:
+        print("Dest label:", dest_label)
+        if dest_label == 5:
+            with pytest.raises(ValueError):
+                ta.break_track(new_start_frame, divide_label, 
+                               change_after, txn, 
+                               new_trackid=dest_label)
+            return
+        else:
+            ta.break_track(new_start_frame, divide_label, 
+                        change_after, txn, 
+                        new_trackid=dest_label)
+    assert np.all(np.array(ta.array) == labels2) 
+    assert compare_nested_structures(ta.splits, ta2.splits)
+

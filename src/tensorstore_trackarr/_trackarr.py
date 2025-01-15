@@ -47,10 +47,14 @@ class TrackArray:
     def _get_safe_track_id(self):
         return self.bboxes_df.index.get_level_values("label").max() + 1
         
+    def __get_bbox(self, frame: int, trackid: int):
+        row = self.bboxes_df.loc[(frame, trackid)]
+        return row[["min_y", "min_x", "max_y", "max_x"]]
+        
     def _update_trackid(self, frame: int, trackid: int, new_trackid: int, txn: ts.Transaction, skip_update=False):
         array_txn = self.array.with_transaction(txn)
-        row = self.bboxes_df.loc[(frame, trackid)]
-        subarr = array_txn[frame, row.min_y:row.max_y, row.min_x:row.max_x]
+        min_y, min_x, max_y, max_x = self.__get_bbox(frame, trackid)
+        subarr = array_txn[frame, min_y:max_y, min_x:max_x]
         ind = np.array(subarr) == trackid
         subarr[ts.d[:].translate_to[0]][ind] = new_trackid # Replace the trackid with the new_trackid
         self.bboxes_df.index = self.bboxes_df.index.map(lambda x: (frame, new_trackid) if x == (frame, trackid) else x)
@@ -67,10 +71,11 @@ class TrackArray:
         
         
     def delete_mask(self, frame: int, trackid: int, txn: ts.Transaction, skip_update=False, cleanup=True):
-        row = self.bboxes_df.loc[(frame, trackid)]
+        min_y, min_x, max_y, max_x = self.__get_bbox(frame, trackid)
         array_txn = self.array.with_transaction(txn)
-        ind = np.array(array_txn[frame, row.min_y:row.max_y, row.min_x:row.max_x]) == trackid
-        array_txn[frame, row.min_y:row.max_y, row.min_x:row.max_x][ts.d[:].translate_to[0]][ind] = 0
+        subarr = array_txn[frame, min_y:max_y, min_x:max_x]
+        ind = np.array(subarr) == trackid
+        subarr[ts.d[:].translate_to[0]][ind] = 0
         self.bboxes_df.drop(index=(frame, trackid), inplace=True)
         if not skip_update:
             self.update_track_df()
@@ -103,14 +108,14 @@ class TrackArray:
 
         # Update the bboxes_df for the possibly updated labels by overlapping with the new mask
         for updated_label in possibly_updated_labels:
-            row = self.bboxes_df.loc[(frame, updated_label)]
-            sublabel = array_txn[frame, row.min_y:row.max_y, row.min_x:row.max_x]
+            min_y, min_x, max_y, max_x = self.__get_bbox(frame, updated_label)
+            sublabel = array_txn[frame, min_y:max_y, min_x:max_x]
             ind = np.nonzero(np.array(sublabel) == updated_label)
             if np.any(ind):
-                self.bboxes_df.loc[(frame,updated_label),"min_y"] = row.min_y + np.min(ind[0])
-                self.bboxes_df.loc[(frame,updated_label),"min_x"] = row.min_x + np.min(ind[1])
-                self.bboxes_df.loc[(frame,updated_label),"max_y"] = row.min_y + np.max(ind[0]) + 1
-                self.bboxes_df.loc[(frame,updated_label),"max_x"] = row.min_x + np.max(ind[1]) + 1
+                self.bboxes_df.loc[(frame,updated_label),"min_y"] = min_y + np.min(ind[0])
+                self.bboxes_df.loc[(frame,updated_label),"min_x"] = min_x + np.min(ind[1])
+                self.bboxes_df.loc[(frame,updated_label),"max_y"] = min_y + np.max(ind[0]) + 1
+                self.bboxes_df.loc[(frame,updated_label),"max_x"] = min_x + np.max(ind[1]) + 1
             else:
                 self.bboxes_df.drop(index=(frame, updated_label), inplace=True)
             if self._get_track_bboxes(updated_label).empty:
@@ -145,9 +150,13 @@ class TrackArray:
             new_trackid = self._get_safe_track_id()
         bboxes_df = self._get_track_bboxes(trackid).reset_index()
         if change_after:
-            bboxes_df = bboxes_df[bboxes_df.frame >= new_start_frame]
+            change_bboxes_df = bboxes_df[bboxes_df.frame >= new_start_frame]
         else:
-            bboxes_df = bboxes_df[bboxes_df.frame < new_start_frame]
+            change_bboxes_df = bboxes_df[bboxes_df.frame < new_start_frame]
+        
+        for frame in change_bboxes_df.frame:
+            if (frame, new_trackid) in self.bboxes_df.index:
+                raise ValueError("new_trackid already exists in the bboxes_df")
             
         if change_after and bboxes_df.frame.min() == new_start_frame:
             # Delete the splits for which this track is a daughter
@@ -156,17 +165,19 @@ class TrackArray:
                 if trackid in daughters:
                     daughters.remove(trackid)
                     self.splits[parent] = daughters
-        if not change_after and bboxes_df.frame.max() == new_start_frame - 1:
+        if not change_after and (bboxes_df.frame.max()+1 == new_start_frame):
             # Delete the splits for which this track is a parent
             self.splits.pop(trackid, None)
             
-        for frame in bboxes_df.frame:
+        for frame in change_bboxes_df.frame:
             self._update_trackid(frame, trackid, new_trackid, txn, skip_update=True)
         self.update_track_df()
 
         if change_after:
             # Update splits
             if trackid in self.splits:
+                if new_trackid in self.splits:
+                    raise ValueError("new_trackid already exists in splits")
                 daughters = self.splits.pop(trackid)
                 self.splits[new_trackid] = daughters
             # Update termination_annotations
