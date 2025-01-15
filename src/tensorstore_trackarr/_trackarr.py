@@ -149,6 +149,7 @@ class TrackArray:
                     change_after:bool, 
                     txn: ts.Transaction,
                     new_trackid: Optional[int] =None):
+        """"""
         if new_trackid is None:
             new_trackid = self._get_safe_track_id()
         bboxes_df = self._get_track_bboxes(trackid).reset_index()

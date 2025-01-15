@@ -286,6 +286,10 @@ break_test_names = [
     "frame3_divide8_change_before_to_20",
     "frame4_divide8_change_before_to_5",
     "frame4_divide8_change_before_to_20",
+    "frame4_divide11_change_after_to_20",
+    "frame4_divide11_change_before_to_20",
+    "frame5_divide11_change_after_to_20",
+    "frame5_divide11_change_before_to_20",
 ]
 @pytest.mark.parametrize("test_name", break_test_names)
 def test_break_track(trackarr_from_name, test_name):
