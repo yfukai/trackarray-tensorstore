@@ -315,6 +315,7 @@ def test_break_track(trackarr_from_name, test_name):
             ta.break_track(new_start_frame, divide_label, 
                         change_after, txn, 
                         new_trackid=dest_label)
+    assert ta.is_valid()
     assert np.all(np.array(ta.array) == labels2) 
     assert compare_nested_structures(ta.splits, ta2.splits)
 
