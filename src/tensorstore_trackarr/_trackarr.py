@@ -69,7 +69,7 @@ class TrackArray:
         self.termination_annotations.pop(trackid, None)
         self.splits.pop(trackid, None)
         for parent, daughters in self.splits.copy().items():
-            self.splits[parent] = [daughter for daughter in daughters if daughter != trackid]
+            self.splits[int(parent)] = [int(daughter) for daughter in daughters if daughter != trackid]
         self.cleanup_single_daughter_splits()
         
         
@@ -141,7 +141,7 @@ class TrackArray:
             self.delete_mask(frame, trackid, txn, skip_update=True)
         self.update_track_df()
         self.termination_annotations[trackid] = annotation
-        self.splits.pop(trackid, None)
+        self.splits.pop(int(trackid), None)
     
     def break_track(self, 
                     new_start_frame:int, 
@@ -168,11 +168,11 @@ class TrackArray:
             _splits = self.splits.copy()
             for parent, daughters in _splits.items():
                 if trackid in daughters:
-                    daughters.remove(trackid)
-                    self.splits[parent] = daughters
+                    daughters.remove(int(trackid))
+                    self.splits[int(parent)] = daughters
         if bboxes_df.frame.max()+1 == new_start_frame:
             # Delete the splits for which this track is a parent
-            self.splits.pop(trackid, None)
+            self.splits.pop(int(trackid), None)
             
         for frame in change_bboxes_df.frame:
             self._update_trackid(frame, trackid, new_trackid, txn, skip_update=True)
@@ -183,35 +183,35 @@ class TrackArray:
             if trackid in self.splits:
                 if new_trackid in self.splits:
                     raise ValueError("new_trackid already exists in splits")
-                daughters = self.splits.pop(trackid)
-                self.splits[new_trackid] = daughters
+                daughters = self.splits.pop(int(trackid))
+                self.splits[int(new_trackid)] = daughters
             # Update termination_annotations
             if trackid in self.termination_annotations:
-                self.termination_annotations[new_trackid] = self.termination_annotations.pop(trackid)
+                self.termination_annotations[int(new_trackid)] = self.termination_annotations.pop(int(trackid))
         else:
             # Update splits
             _splits = self.splits.copy()
             for parent, daughters in _splits.items():
                 if trackid in daughters:
-                    daughters.remove(trackid)
-                    daughters.append(new_trackid)
-                    self.splits[parent] = daughters
+                    daughters.remove(int(trackid))
+                    daughters.append(int(new_trackid))
+                    self.splits[int(parent)] = daughters
                     
         return new_trackid
     
     def add_split(self, daughter_start_frame:int, parent_trackid, daughter_trackids, txn: ts.Transaction):
         new_trackid = self.break_track(daughter_start_frame, parent_trackid, change_after=True, txn=txn)
-        daughter_trackids = [i if i != parent_trackid else new_trackid for i in daughter_trackids]
+        daughter_trackids = [int(i) if i != parent_trackid else new_trackid for i in daughter_trackids]
         for daughter_trackid in daughter_trackids:
             self.break_track(daughter_start_frame, daughter_trackid, change_after=False, txn=txn)
-        self.splits[parent_trackid] = daughter_trackids
+        self.splits[int(parent_trackid)] = daughter_trackids
         self.cleanup_single_daughter_splits()
     
     def cleanup_single_daughter_splits(self):
         for parent, daughters in self.splits.copy().items():
             if len(daughters) == 1:
-                daughter = daughters[0]
+                daughter = int(daughters[0])
                 track_df = self._get_track_bboxes(daughter).reset_index()
                 for frame in track_df.frame:
                     self._update_trackid(frame, daughter, parent, None, skip_update=True)
-                self.splits.pop(parent)
+                self.splits.pop(int(parent))
