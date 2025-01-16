@@ -7,7 +7,7 @@ import pandas as pd
 import tensorstore as ts
 from numpy import typing as npt
 from skimage.measure import regionprops_table
-
+from line_profiler import profile
 
 def to_bbox_df(label: npt.ArrayLike) -> pd.DataFrame:
     bbox_df = pd.concat(
@@ -43,14 +43,8 @@ class TrackArray:
         if bboxes_df is None:
             bboxes_df = to_bbox_df(ts_array)
         self.bboxes_df = bboxes_df
-        self.update_track_df()
         self.splits = splits
         self.termination_annotations = termination_annotations
-
-    def update_track_df(self):
-        self._track_df = (
-            self.bboxes_df.reset_index().groupby("label")["frame"].agg(["min", "max"])
-        )
 
     def is_valid(self):
         _bboxes_df = to_bbox_df(self.array)
@@ -72,7 +66,6 @@ class TrackArray:
         trackid: int,
         new_trackid: int,
         txn: ts.Transaction,
-        skip_update=False,
     ):
         if (frame, new_trackid) in self.bboxes_df.index:
             raise ValueError("new_trackid already exists in the bboxes_df")
@@ -88,9 +81,6 @@ class TrackArray:
             lambda x: (frame, new_trackid) if x == (frame, trackid) else x
         )
 
-        if not skip_update:
-            self.update_track_df()
-
     def _cleanup_track(self, trackid: int):
         self.termination_annotations.pop(trackid, None)
         self.splits.pop(trackid, None)
@@ -105,7 +95,6 @@ class TrackArray:
         frame: int,
         trackid: int,
         txn: ts.Transaction,
-        skip_update: bool = False,
         cleanup: bool = True,
     ):
         min_y, min_x, max_y, max_x = self.__get_bbox(frame, trackid)
@@ -114,8 +103,6 @@ class TrackArray:
         ind = np.array(subarr) == trackid
         subarr[ts.d[:].translate_to[0]][ind] = 0
         self.bboxes_df.drop(index=(frame, trackid), inplace=True)
-        if not skip_update:
-            self.update_track_df()
         if (
             cleanup and self._get_track_bboxes(trackid).empty
         ):  # if the track becomes empty
@@ -207,8 +194,6 @@ class TrackArray:
                 ]
             self.cleanup_single_daughter_splits()
 
-        self.update_track_df()
-
     def update_mask(
         self,
         frame: int,
@@ -217,7 +202,7 @@ class TrackArray:
         new_mask,
         txn: ts.Transaction,
     ):
-        self.delete_mask(frame, trackid, txn, cleanup=False, skip_update=True)
+        self.delete_mask(frame, trackid, txn, cleanup=False)
         self.add_mask(frame, trackid, new_mask_origin, new_mask, txn)
 
     def terminate_track(
@@ -226,11 +211,11 @@ class TrackArray:
         bboxes_df = self._get_track_bboxes(trackid).reset_index()
         bboxes_df = bboxes_df[bboxes_df.frame > frame]
         for frame in bboxes_df.frame:
-            self.delete_mask(frame, trackid, txn, skip_update=True)
-        self.update_track_df()
+            self.delete_mask(frame, trackid, txn)
         self.termination_annotations[trackid] = annotation
         self.splits.pop(int(trackid), None)
 
+    @profile
     def break_track(
         self,
         new_start_frame: int,
@@ -264,8 +249,7 @@ class TrackArray:
             self.splits.pop(int(trackid), None)
 
         for frame in change_bboxes_df.frame:
-            self._update_trackid(frame, trackid, new_trackid, txn, skip_update=True)
-        self.update_track_df()
+            self._update_trackid(frame, trackid, new_trackid, txn)
 
         if change_after:
             # Update splits
@@ -317,6 +301,6 @@ class TrackArray:
                 track_df = self._get_track_bboxes(daughter).reset_index()
                 for frame in track_df.frame:
                     self._update_trackid(
-                        frame, daughter, parent, None, skip_update=True
+                        frame, daughter, parent, None
                     )
                 self.splits.pop(int(parent))

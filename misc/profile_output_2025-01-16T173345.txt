@@ -1,0 +1,69 @@
+Timer unit: 1e-09 s
+
+Total time: 0.004169 s
+File: /Users/fukai/projects/tensorstore_trackarr/src/tensorstore_trackarr/_trackarr.py
+Function: break_track at line 234
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+   234                                               @profile
+   235                                               def break_track(
+   236                                                   self,
+   237                                                   new_start_frame: int,
+   238                                                   trackid: int,
+   239                                                   change_after: bool,
+   240                                                   txn: ts.Transaction,
+   241                                                   new_trackid: Optional[int] = None,
+   242                                               ):
+   243         1       1000.0   1000.0      0.0          if new_trackid is None:
+   244         1     323000.0 323000.0      7.7              new_trackid = self._get_safe_track_id()
+   245         1    1375000.0    1e+06     33.0          bboxes_df = self._get_track_bboxes(trackid).reset_index()
+   246         1          0.0      0.0      0.0          if change_after:
+   247         1     366000.0 366000.0      8.8              change_bboxes_df = bboxes_df[bboxes_df.frame >= new_start_frame]
+   248                                                   else:
+   249                                                       change_bboxes_df = bboxes_df[bboxes_df.frame < new_start_frame]
+   250                                           
+   251         1      33000.0  33000.0      0.8          for frame in change_bboxes_df.frame:
+   252                                                       if (frame, new_trackid) in self.bboxes_df.index:
+   253                                                           raise ValueError("new_trackid already exists in the bboxes_df")
+   254                                           
+   255                                                   # Add the "break point" to the splits
+   256         1      54000.0  54000.0      1.3          if bboxes_df.frame.min() == new_start_frame:
+   257                                                       # Delete the splits for which this track is a daughter
+   258                                                       _splits = self.splits.copy()
+   259                                                       for parent, daughters in _splits.items():
+   260                                                           if trackid in daughters:
+   261                                                               daughters.remove(int(trackid))
+   262                                                               self.splits[int(parent)] = daughters
+   263         1      18000.0  18000.0      0.4          if bboxes_df.frame.max() + 1 == new_start_frame:
+   264                                                       # Delete the splits for which this track is a parent
+   265                                                       self.splits.pop(int(trackid), None)
+   266                                           
+   267         1       8000.0   8000.0      0.2          for frame in change_bboxes_df.frame:
+   268                                                       self._update_trackid(frame, trackid, new_trackid, txn, skip_update=True)
+   269         1    1990000.0    2e+06     47.7          self.update_track_df()
+   270                                           
+   271         1          0.0      0.0      0.0          if change_after:
+   272                                                       # Update splits
+   273         1          0.0      0.0      0.0              if trackid in self.splits:
+   274                                                           if new_trackid in self.splits:
+   275                                                               raise ValueError("new_trackid already exists in splits")
+   276                                                           daughters = self.splits.pop(int(trackid))
+   277                                                           self.splits[int(new_trackid)] = daughters
+   278                                                       # Update termination_annotations
+   279         1          0.0      0.0      0.0              if trackid in self.termination_annotations:
+   280                                                           self.termination_annotations[
+   281                                                               int(new_trackid)
+   282                                                           ] = self.termination_annotations.pop(int(trackid))
+   283                                                   else:
+   284                                                       # Update splits
+   285                                                       _splits = self.splits.copy()
+   286                                                       for parent, daughters in _splits.items():
+   287                                                           if trackid in daughters:
+   288                                                               daughters.remove(int(trackid))
+   289                                                               daughters.append(int(new_trackid))
+   290                                                               self.splits[int(parent)] = daughters
+   291                                           
+   292         1       1000.0   1000.0      0.0          return new_trackid
+
+  0.00 seconds - /Users/fukai/projects/tensorstore_trackarr/src/tensorstore_trackarr/_trackarr.py:234 - break_track
