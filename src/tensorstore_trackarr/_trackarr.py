@@ -1,5 +1,6 @@
 from typing import Optional
 from typing import Sequence
+from typing import Dict, List
 
 import numpy as np
 import pandas as pd
@@ -31,7 +32,11 @@ def to_bbox_df(label: npt.ArrayLike) -> pd.DataFrame:
 
 
 class TrackArray:
-    def __init__(self, ts_array, splits, termination_annotations, bboxes_df=None):
+    def __init__(self, 
+                 ts_array: ts.TensorStore, 
+                 splits: Dict[int,List[int]], 
+                 termination_annotations: Dict[int:str], 
+                 bboxes_df=None):
         self.array = ts_array
         if bboxes_df is None:
             bboxes_df = to_bbox_df(ts_array)
@@ -98,8 +103,8 @@ class TrackArray:
         frame: int,
         trackid: int,
         txn: ts.Transaction,
-        skip_update=False,
-        cleanup=True,
+        skip_update: bool=False,
+        cleanup: bool=True,
     ):
         min_y, min_x, max_y, max_x = self.__get_bbox(frame, trackid)
         array_txn = self.array.with_transaction(txn)
@@ -232,7 +237,6 @@ class TrackArray:
         txn: ts.Transaction,
         new_trackid: Optional[int] = None,
     ):
-        """"""
         if new_trackid is None:
             new_trackid = self._get_safe_track_id()
         bboxes_df = self._get_track_bboxes(trackid).reset_index()

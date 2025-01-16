@@ -2229,6 +2229,40 @@ test = ["hypothesis (>=6.46.1)", "pytest (>=7.3.2)", "pytest-xdist (>=2.2.0)"]
 xml = ["lxml (>=4.9.2)"]
 
 [[package]]
+name = "pandera"
+version = "0.22.1"
+description = "A light-weight and flexible data validation and testing tool for statistical data objects."
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "pandera-0.22.1-py3-none-any.whl", hash = "sha256:2a35531b4b533ac83e606a6dcc3cd41561774ff3d872117228e931f22e72f330"},
+    {file = "pandera-0.22.1.tar.gz", hash = "sha256:091ebc353383ba642e5a20ee0df763ed2059ab99cb4b2ac3e83f482de8493645"},
+]
+
+[package.dependencies]
+numpy = ">=1.19.0"
+packaging = ">=20.0"
+pandas = ">=1.2.0"
+pydantic = "*"
+typeguard = "*"
+typing_inspect = ">=0.6.0"
+
+[package.extras]
+all = ["black", "dask[dataframe]", "fastapi", "frictionless (<=4.40.8)", "geopandas", "hypothesis (>=6.92.7)", "modin", "pandas-stubs", "polars (>=0.20.0)", "pyspark[connect] (>=3.2.0)", "pyyaml (>=5.1)", "ray", "scipy", "shapely"]
+dask = ["dask[dataframe]"]
+fastapi = ["fastapi"]
+geopandas = ["geopandas", "shapely"]
+hypotheses = ["scipy"]
+io = ["black", "frictionless (<=4.40.8)", "pyyaml (>=5.1)"]
+modin = ["dask[dataframe]", "modin", "ray"]
+modin-dask = ["dask[dataframe]", "modin"]
+modin-ray = ["modin", "ray"]
+mypy = ["pandas-stubs"]
+polars = ["polars (>=0.20.0)"]
+pyspark = ["pyspark[connect] (>=3.2.0)"]
+strategies = ["hypothesis (>=6.92.7)"]
+
+[[package]]
 name = "parso"
 version = "0.8.4"
 description = "A Python Parser"
@@ -4250,6 +4284,21 @@ files = [
 ]
 
 [[package]]
+name = "typing-inspect"
+version = "0.9.0"
+description = "Runtime inspection utilities for typing module."
+optional = false
+python-versions = "*"
+files = [
+    {file = "typing_inspect-0.9.0-py3-none-any.whl", hash = "sha256:9ee6fc59062311ef8547596ab6b955e1b8aa46242d854bfc78f4f6b0eff35f9f"},
+    {file = "typing_inspect-0.9.0.tar.gz", hash = "sha256:b23fc42ff6f6ef6954e4852c1fb512cdd18dbea03134f91f856a95ccc9461f78"},
+]
+
+[package.dependencies]
+mypy-extensions = ">=0.3.0"
+typing-extensions = ">=3.7.4"
+
+[[package]]
 name = "tzdata"
 version = "2024.2"
 description = "Provider of IANA time zone data"
@@ -4681,4 +4730,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "d5b5ee3989ceb1b24efb646462ebc25eb3ce62e676c295cf96aa5cd9cf8b7bb9"
+content-hash = "8ac84aec025e05e8ca8bf5a04ea18fbb08194bcf4b5836b367868b1545ed88c1"
