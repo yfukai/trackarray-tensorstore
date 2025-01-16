@@ -56,6 +56,7 @@ tensorstore-trackarr = "tensorstore_trackarr.__main__:main"
 [tool.poetry.group.dev.dependencies]
 pytest-datadir = "^1.5.0"
 napari = {extras = ["pyqt5"], version = "^0.5.5"}
+matplotlib = "^3.10.0"
 
 [tool.coverage.paths]
 source = ["src", "*/site-packages"]
