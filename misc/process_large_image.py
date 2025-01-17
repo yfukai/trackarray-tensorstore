@@ -70,7 +70,7 @@ def circular_blob_image(frame_count, image_size, num_blobs, blob_diameter, dtype
 
 def test_break_track_performance(ta):
     with ts.Transaction() as txn:
-        ta.break_track(ta.array.shape[0]//2, 0, True, txn)
+        ta.break_track(ta.array.shape[0]//2, 1, True, txn)
 
 def main():
     # Create a circular blob image

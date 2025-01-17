@@ -243,7 +243,6 @@ class TrackArray:
         self.termination_annotations[trackid] = annotation
         self.splits.pop(int(trackid), None)
 
-    @profile
     def break_track(
         self,
         new_start_frame: int,
