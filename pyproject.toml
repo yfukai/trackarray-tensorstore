@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "tensorstore-trackarray"
 version = "0.0.0"
-description = "Tensorstore Trackarr"
+description = "TensorStore TrackArray"
 authors = ["Yohsuke T. Fukai <ysk@yfukai.net>"]
 license = "MIT"
 readme = "README.md"
