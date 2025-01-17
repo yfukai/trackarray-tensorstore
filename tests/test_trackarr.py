@@ -12,19 +12,16 @@ from ._utils import compare_nested_structures
 
 def test_to_bbox_df(labels_dir):
     labels = np.load(labels_dir / "original_labels.npy")
-    bbox_df = tta.to_bbox_df(labels)
+    bbox_df = tta.to_bbox_df(labels).set_index("frame")
     for frame in range(len(labels)):
         _df = bbox_df.loc[frame]
-        for label, row in _df.iterrows():
+        for _, row in _df.iterrows():
+            label = row["label"]
             ind = np.nonzero(labels[frame] == label)
             assert row["min_x"] == ind[1].min()
             assert row["max_x"] == ind[1].max() + 1
             assert row["min_y"] == ind[0].min()
             assert row["max_y"] == ind[0].max() + 1
-
-
-def test_update_track_df():
-    pass
 
 
 def test_trackarr_fixture_always_new(labels_dir, trackarr_from_name):
@@ -42,7 +39,7 @@ def test_validate(trackarr_from_name, all_label_filenames):
     for filename in all_label_filenames:
         ta, _, _ = trackarr_from_name(filename)
         assert ta.is_valid()
-        ta.bboxes_df.loc[(0, 1), "min_y"] = 0
+        ta._bboxes_dict[1].loc[0, "min_y"] = 0
         assert not ta.is_valid()
 
 
@@ -52,30 +49,31 @@ def test_delete_mask(trackarr_from_name):
     unique_labels = unique_labels[unique_labels != 0]
     map_dict = {l: l for l in unique_labels}
 
-    for frame, label in ta.bboxes_df.index:
-        ta, labels, split_dict = trackarr_from_name("original")
-        termination_annotations = deepcopy(ta.termination_annotations)
+    for label, grp in ta._bboxes_dict.items():
+        for frame in grp.index:
+            ta, labels, split_dict = trackarr_from_name("original")
+            termination_annotations = deepcopy(ta.termination_annotations)
 
-        with ts.Transaction() as txn:
-            ta.delete_mask(frame, label, txn)
-        assert ta.is_valid()
+            with ts.Transaction() as txn:
+                ta.delete_mask(frame, label, txn)
+            assert ta.is_valid()
 
-        split_dict2 = ta.splits
+            split_dict2 = ta.splits
 
-        map_dict2 = deepcopy(map_dict)
-        map_dict2.pop(label)
-        labels2 = labels.copy()
-        labels2[frame] = map_array(
-            labels[frame],
-            np.array(list(map_dict2.keys())),
-            np.array(list(map_dict2.values())),
-        )
-        assert np.all(labels2 == np.array(ta.array))
+            map_dict2 = deepcopy(map_dict)
+            map_dict2.pop(label)
+            labels2 = labels.copy()
+            labels2[frame] = map_array(
+                labels[frame],
+                np.array(list(map_dict2.keys())),
+                np.array(list(map_dict2.values())),
+            )
+            assert np.all(labels2 == np.array(ta.array))
 
-        if label not in labels2.ravel():
-            assert label not in split_dict2
-            assert all(label not in v for v in split_dict2.values())
-            assert label not in ta.termination_annotations
+            if label not in labels2.ravel():
+                assert label not in split_dict2
+                assert all(label not in v for v in split_dict2.values())
+                assert label not in ta.termination_annotations
 
 def test_add_mask(trackarr_from_name):
     ta, labels, _ = trackarr_from_name("original")
@@ -170,7 +168,6 @@ def test_break_track(trackarr_from_name, test_name):
     change_after = direction == "after"
 
     with ts.Transaction() as txn:
-        print("Dest label:", dest_label)
         if dest_label == 5 and test_name != "frame4_8break_change_after_to_5":
             with pytest.raises(ValueError):
                 ta.break_track(

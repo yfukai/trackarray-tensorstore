@@ -59,6 +59,7 @@ napari = {extras = ["pyqt5"], version = "^0.5.5"}
 matplotlib = "^3.10.0"
 pytest-benchmark = "^5.1.0"
 line-profiler = "^4.2.0"
+scipy = "^1.15.1"
 
 [tool.coverage.paths]
 source = ["src", "*/site-packages"]

@@ -31,5 +31,5 @@ def circular_blob_image(request):
 def test_break_track_performance(circular_blob_image, trackarr, benchmark):
     ta = trackarr(circular_blob_image, {})
     with ts.Transaction() as txn:
-        benchmark(ta.break_track,ta.array.shape[0]//2, 0, True, txn)
+        benchmark(ta.break_track,ta.array.shape[0]//2, 1, True, txn)
     assert ta.is_valid()

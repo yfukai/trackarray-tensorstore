@@ -38,7 +38,7 @@ def trackarr(tmpdir):
         _read_spec = get_read_spec(zarr_filename)
         ts_read = ts.open(_read_spec).result()
         bbox_df = tta.to_bbox_df(labels)
-        unique_labels = np.unique(bbox_df.index.get_level_values("label"))
+        unique_labels = np.unique(bbox_df["label"])
         unique_labels = unique_labels[unique_labels != 0]
 
         termination_annotations = {

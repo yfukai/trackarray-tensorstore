@@ -17,7 +17,7 @@ def to_bbox_df(label: npt.ArrayLike) -> pd.DataFrame:
             ).assign(frame=frame)
             for frame in range(label.shape[0])
         ]
-    ).set_index(["frame", "label"])
+    )
     # bboxtuple
     # Bounding box (min_row, min_col, max_row, max_col).
     # Pixels belonging to the bounding box are in the half-open interval [min_row; max_row) and [min_col; max_col).
@@ -30,6 +30,10 @@ def to_bbox_df(label: npt.ArrayLike) -> pd.DataFrame:
     del bbox_df["bbox-0"], bbox_df["bbox-1"], bbox_df["bbox-2"], bbox_df["bbox-3"]
     return bbox_df
 
+def _bbox_df_to_dict(bboxes_df):
+    return {label:grp.set_index("frame").sort_index() for label, grp in bboxes_df.groupby("label")}
+def _bbox_dict_to_df(bboxes_dict):
+    return pd.concat([grp.assign(label=label).reset_index() for label, grp in bboxes_dict.items()])
 
 class TrackArray:
     def __init__(
@@ -42,53 +46,77 @@ class TrackArray:
         self.array = ts_array
         if bboxes_df is None:
             bboxes_df = to_bbox_df(ts_array)
-        self.bboxes_df = bboxes_df
+        self._bboxes_dict = _bbox_df_to_dict(bboxes_df)
+        self._safe_label = max(self._bboxes_dict.keys()) + 1
         self.splits = splits
         self.termination_annotations = termination_annotations
 
     def is_valid(self):
-        _bboxes_df = to_bbox_df(self.array)
-        return _bboxes_df.sort_index().equals(self.bboxes_df.sort_index())
+        _bboxes_df1 = to_bbox_df(self.array)
+        _bboxes_df2 = _bbox_dict_to_df(self._bboxes_dict)
+        is_all_sorted = all([_df.index.is_monotonic_increasing for _df in self._bboxes_dict.values()])
+        return _bboxes_df1.sort_values(["frame","label"]).set_index(["frame","label"]).equals(
+            _bboxes_df2.sort_values(["frame","label"]).set_index(["frame","label"])) & is_all_sorted
+
+    def _update_safe_label(self, new_label):
+        self._safe_label = max(self._safe_label, new_label + 1)
 
     def _get_track_bboxes(self, trackid: int):
-        return self.bboxes_df[self.bboxes_df.index.get_level_values("label") == trackid]
+        return self._bboxes_dict.get(trackid, pd.DataFrame())
 
     def _get_safe_track_id(self):
-        return self.bboxes_df.index.get_level_values("label").max() + 1
+        return self._safe_label
 
-    def __get_bbox(self, frame: int, trackid: int):
-        row = self.bboxes_df.loc[(frame, trackid)]
-        return row[["min_y", "min_x", "max_y", "max_x"]]
+    def _get_bboxes(self, frames: Sequence[int], trackid: int):
+        rows = self._bboxes_dict[trackid].loc[frames]
+        return rows[["min_y", "min_x", "max_y", "max_x"]]
 
-    def _update_trackid(
+    def __update_trackids_in_bboxes(self, frames, old_trackid, new_trackid):
+        previous_rows = self._bboxes_dict[old_trackid].loc[frames]
+        self._bboxes_dict[new_trackid] = pd.concat([
+            self._get_track_bboxes(new_trackid),
+            previous_rows]).sort_index()
+        self._bboxes_dict[old_trackid].drop(index=frames, inplace=True)
+        if self._bboxes_dict[old_trackid].empty:
+            self._bboxes_dict.pop(old_trackid)
+        
+    def _update_trackids(
         self,
-        frame: int,
+        frames: Sequence[int],
         trackid: int,
         new_trackid: int,
         txn: ts.Transaction,
     ):
-        if (frame, new_trackid) in self.bboxes_df.index:
-            raise ValueError("new_trackid already exists in the bboxes_df")
+        if not set(frames).isdisjoint(self._get_track_bboxes(new_trackid).index):
+            raise ValueError(
+                f"new_trackid {new_trackid} already exists in the bboxes at frame {frames}")
 
         array_txn = self.array.with_transaction(txn)
-        min_y, min_x, max_y, max_x = self.__get_bbox(frame, trackid)
-        subarr = array_txn[frame, min_y:max_y, min_x:max_x]
-        ind = np.array(subarr) == trackid
-        subarr[ts.d[:].translate_to[0]][
-            ind
-        ] = new_trackid  # Replace the trackid with the new_trackid
-        self.bboxes_df.index = self.bboxes_df.index.map(
-            lambda x: (frame, new_trackid) if x == (frame, trackid) else x
-        )
+        rows = self._get_bboxes(frames, trackid)
+        min_ys, min_xs, max_ys, max_xs = rows[["min_y", "min_x", "max_y", "max_x"]].values.T
+        for frame, min_y, min_x, max_y, max_x in zip(
+            frames, min_ys, min_xs, max_ys, max_xs
+        ):
+            subarr = array_txn[frame, min_y:max_y, min_x:max_x]
+            ind = np.array(subarr) == trackid
+            subarr[ts.d[:].translate_to[0]][ind] = new_trackid
+            # Replace the trackid with the new_trackid
+            
+        self.__update_trackids_in_bboxes(frames, trackid, new_trackid)
+        self._update_safe_label(new_trackid)
 
-    def _cleanup_track(self, trackid: int):
+    def _cleanup_track_as_daughter(self, trackid: int):
+        _splits = self.splits.copy()
+        for parent, daughters in _splits.items():
+            if int(trackid) in daughters:
+                self.splits[int(parent)] = [
+                    int(daughter) for daughter in daughters if daughter != trackid
+                ]
+        self.cleanup_single_daughter_splits()
+       
+    def _cleanup_track_as_parent(self, trackid: int):
         self.termination_annotations.pop(trackid, None)
         self.splits.pop(trackid, None)
-        for parent, daughters in self.splits.copy().items():
-            self.splits[int(parent)] = [
-                int(daughter) for daughter in daughters if daughter != trackid
-            ]
-        self.cleanup_single_daughter_splits()
 
     def delete_mask(
         self,
@@ -97,16 +125,18 @@ class TrackArray:
         txn: ts.Transaction,
         cleanup: bool = True,
     ):
-        min_y, min_x, max_y, max_x = self.__get_bbox(frame, trackid)
+        row = self._get_bboxes([frame], trackid).iloc[0]
+        min_y, min_x, max_y, max_x = row[['min_y', 'min_x', 'max_y', 'max_x']]
         array_txn = self.array.with_transaction(txn)
         subarr = array_txn[frame, min_y:max_y, min_x:max_x]
         ind = np.array(subarr) == trackid
         subarr[ts.d[:].translate_to[0]][ind] = 0
-        self.bboxes_df.drop(index=(frame, trackid), inplace=True)
+        self._bboxes_dict[trackid].drop(index=(frame), inplace=True)
         if (
             cleanup and self._get_track_bboxes(trackid).empty
         ):  # if the track becomes empty
-            self._cleanup_track(trackid)
+            self._cleanup_track_as_daughter(trackid)
+            self._cleanup_track_as_parent(trackid)
 
     def add_mask(
         self,
@@ -120,7 +150,7 @@ class TrackArray:
         assert mask.shape[1] + mask_origin[1] <= self.array.shape[2]
         assert mask.dtype == bool
 
-        previous_frames = self._get_track_bboxes(trackid).reset_index().frame.copy()
+        previous_frames = self._get_track_bboxes(trackid).index
 
         array_txn = self.array.with_transaction(txn)
         inds = np.where(mask)
@@ -140,9 +170,9 @@ class TrackArray:
         ][mask2] = trackid
 
         # Add entry to the bboxes_df
-        self.bboxes_df = pd.concat(
+        self._bboxes_dict[trackid] = pd.concat(
             [
-                self.bboxes_df,
+                self._bboxes_dict.get(trackid, pd.DataFrame()),
                 pd.DataFrame(
                     {
                         "min_y": y_window[0],
@@ -150,49 +180,47 @@ class TrackArray:
                         "max_y": y_window[1],
                         "max_x": x_window[1],
                     },
-                    index=pd.MultiIndex.from_tuples(
-                        [(frame, trackid)], names=["frame", "label"]
-                    ),
+                    index=pd.Index([frame], name="frame"),
                 ),
             ]
-        )
+        ).sort_index()
 
         # Update the bboxes_df for the possibly updated labels by overlapping with the new mask
         for updated_label in possibly_updated_labels:
-            min_y, min_x, max_y, max_x = self.__get_bbox(frame, updated_label)
+            min_y, min_x, max_y, max_x = self._get_bboxes([frame], updated_label).iloc[0][["min_y", "min_x", "max_y", "max_x"]]
             sublabel = array_txn[frame, min_y:max_y, min_x:max_x]
             ind = np.nonzero(np.array(sublabel) == updated_label)
             if np.any(ind):
-                self.bboxes_df.loc[(frame, updated_label), "min_y"] = min_y + np.min(
+                self._bboxes_dict[updated_label].loc[frame, "min_y"] = min_y + np.min(
                     ind[0]
                 )
-                self.bboxes_df.loc[(frame, updated_label), "min_x"] = min_x + np.min(
+                self._bboxes_dict[updated_label].loc[frame, "min_x"] = min_x + np.min(
                     ind[1]
                 )
-                self.bboxes_df.loc[(frame, updated_label), "max_y"] = (
+                self._bboxes_dict[updated_label].loc[frame, "max_y"] = (
                     min_y + np.max(ind[0]) + 1
                 )
-                self.bboxes_df.loc[(frame, updated_label), "max_x"] = (
+                self._bboxes_dict[updated_label].loc[frame, "max_x"] = (
                     min_x + np.max(ind[1]) + 1
                 )
             else:
-                self.bboxes_df.drop(index=(frame, updated_label), inplace=True)
+                self._bboxes_dict[updated_label].drop(index=frame, inplace=True)
             if self._get_track_bboxes(updated_label).empty:
-                self._cleanup_track(updated_label)
+                self._cleanup_track_as_parent(updated_label)
+                self._cleanup_track_as_daughter(updated_label)
 
         # Update splits and termination_annotations
         # invalidate splits and termination_annotations if the frame is later than the last frame of the original track
-        if frame > previous_frames.max():
-            self.termination_annotations.pop(trackid, None)
-            self.splits.pop(trackid, None)
-        # invalidate splits if the frame is earlier than the first frame of the original track
-        if frame < previous_frames.min():
-            _splits = self.splits.copy()
-            for parent, daughters in _splits.items():
-                self.splits[int(parent)] = [
-                    int(daughter) for daughter in daughters if daughter != trackid
-                ]
-            self.cleanup_single_daughter_splits()
+        if len(previous_frames) > 0:
+            min_frame = previous_frames.values[0]
+            max_frame = previous_frames.values[-1]
+
+            if frame > max_frame:
+                self._cleanup_track_as_parent(trackid)
+            # invalidate splits if the frame is earlier than the first frame of the original track
+            if frame < min_frame:
+                self._cleanup_track_as_daughter(trackid)
+        self._update_safe_label(trackid)
 
     def update_mask(
         self,
@@ -208,9 +236,9 @@ class TrackArray:
     def terminate_track(
         self, frame: int, trackid: int, annotation: str, txn: ts.Transaction
     ):
-        bboxes_df = self._get_track_bboxes(trackid).reset_index()
-        bboxes_df = bboxes_df[bboxes_df.frame > frame]
-        for frame in bboxes_df.frame:
+        bboxes_df = self._get_track_bboxes(trackid)
+        bboxes_df = bboxes_df[bboxes_df.index > frame]
+        for frame in bboxes_df.index:
             self.delete_mask(frame, trackid, txn)
         self.termination_annotations[trackid] = annotation
         self.splits.pop(int(trackid), None)
@@ -226,30 +254,26 @@ class TrackArray:
     ):
         if new_trackid is None:
             new_trackid = self._get_safe_track_id()
-        bboxes_df = self._get_track_bboxes(trackid).reset_index()
+        bboxes_df = self._get_track_bboxes(trackid)
         if change_after:
-            change_bboxes_df = bboxes_df[bboxes_df.frame >= new_start_frame]
+            change_bboxes_df = bboxes_df.loc[new_start_frame:]
         else:
-            change_bboxes_df = bboxes_df[bboxes_df.frame < new_start_frame]
+            change_bboxes_df = bboxes_df.loc[:new_start_frame-1]
 
-        for frame in change_bboxes_df.frame:
-            if (frame, new_trackid) in self.bboxes_df.index:
-                raise ValueError("new_trackid already exists in the bboxes_df")
+        if not set(change_bboxes_df.index).isdisjoint(self._get_track_bboxes(new_trackid).index):
+            raise ValueError("new_trackid already exists in the bboxes_df")
 
+        frame_min = bboxes_df.index.values[0]
+        frame_max = bboxes_df.index.values[-1]
         # Add the "break point" to the splits
-        if bboxes_df.frame.min() == new_start_frame:
+        if frame_min == new_start_frame:
             # Delete the splits for which this track is a daughter
-            _splits = self.splits.copy()
-            for parent, daughters in _splits.items():
-                if trackid in daughters:
-                    daughters.remove(int(trackid))
-                    self.splits[int(parent)] = daughters
-        if bboxes_df.frame.max() + 1 == new_start_frame:
+            self._cleanup_track_as_daughter(trackid)
+        if frame_max + 1 == new_start_frame:
             # Delete the splits for which this track is a parent
-            self.splits.pop(int(trackid), None)
+            self._cleanup_track_as_parent(trackid)
 
-        for frame in change_bboxes_df.frame:
-            self._update_trackid(frame, trackid, new_trackid, txn)
+        self._update_trackids(change_bboxes_df.index, trackid, new_trackid, txn)
 
         if change_after:
             # Update splits
@@ -295,12 +319,12 @@ class TrackArray:
         self.cleanup_single_daughter_splits()
 
     def cleanup_single_daughter_splits(self):
-        for parent, daughters in self.splits.copy().items():
+        _splits = self.splits.copy()
+        for parent, daughters in _splits.items():
             if len(daughters) == 1:
                 daughter = int(daughters[0])
-                track_df = self._get_track_bboxes(daughter).reset_index()
-                for frame in track_df.frame:
-                    self._update_trackid(
-                        frame, daughter, parent, None
-                    )
+                track_df = self._get_track_bboxes(daughter)
+                self._update_trackids(
+                    track_df.index, daughter, parent, None
+                )
                 self.splits.pop(int(parent))
