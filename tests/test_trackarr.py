@@ -6,7 +6,7 @@ import pytest
 import tensorstore as ts
 from skimage.util import map_array
 
-import tensorstore_trackarr as tta
+import tensorstore_trackarray as tta
 from ._utils import compare_nested_structures
 
 

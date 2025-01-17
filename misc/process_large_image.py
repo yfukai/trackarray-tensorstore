@@ -2,7 +2,7 @@ import numpy as np
 from skimage.draw import disk
 from copy import deepcopy
 import tensorstore as ts
-import tensorstore_trackarr as tta
+import tensorstore_trackarray as tta
 
 def get_spec(ndims):
     return {

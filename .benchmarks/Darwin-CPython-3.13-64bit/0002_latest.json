@@ -33,7 +33,7 @@
         "time": "2025-01-16T16:42:53+09:00",
         "author_time": "2025-01-16T16:42:53+09:00",
         "dirty": true,
-        "project": "tensorstore_trackarr",
+        "project": "tensorstore_trackarray",
         "branch": "main"
     },
     "benchmarks": [

@@ -1,7 +1,7 @@
 Timer unit: 1e-09 s
 
 Total time: 0.004723 s
-File: /Users/fukai/projects/tensorstore_trackarr/misc/./process_large_image.py
+File: /Users/fukai/projects/tensorstore_trackarray/misc/./process_large_image.py
 Function: test_break_track_performance at line 72
 
 Line #      Hits         Time  Per Hit   % Time  Line Contents
@@ -11,4 +11,4 @@ Line #      Hits         Time  Per Hit   % Time  Line Contents
     74         2      46000.0  23000.0      1.0      with ts.Transaction() as txn:
     75         1    4677000.0    5e+06     99.0          ta.break_track(ta.array.shape[0]//2, 0, True, txn)
 
-  0.00 seconds - /Users/fukai/projects/tensorstore_trackarr/misc/./process_large_image.py:72 - test_break_track_performance
+  0.00 seconds - /Users/fukai/projects/tensorstore_trackarray/misc/./process_large_image.py:72 - test_break_track_performance

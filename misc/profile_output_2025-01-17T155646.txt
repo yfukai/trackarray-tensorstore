@@ -1,7 +1,7 @@
 Timer unit: 1e-09 s
 
 Total time: 0.009069 s
-File: /Users/fukai/projects/tensorstore_trackarr/src/tensorstore_trackarr/_trackarr.py
+File: /Users/fukai/projects/tensorstore_trackarray/src/tensorstore_trackarray/_trackarr.py
 Function: _update_trackids at line 83
 
 Line #      Hits         Time  Per Hit   % Time  Line Contents
@@ -33,7 +33,7 @@ Line #      Hits         Time  Per Hit   % Time  Line Contents
    107         1       9000.0   9000.0      0.1          self._update_safe_label(new_trackid)
 
 Total time: 0.010154 s
-File: /Users/fukai/projects/tensorstore_trackarr/src/tensorstore_trackarr/_trackarr.py
+File: /Users/fukai/projects/tensorstore_trackarray/src/tensorstore_trackarray/_trackarr.py
 Function: break_track at line 247
 
 Line #      Hits         Time  Per Hit   % Time  Line Contents
@@ -93,5 +93,5 @@ Line #      Hits         Time  Per Hit   % Time  Line Contents
    299                                           
    300         1       1000.0   1000.0      0.0          return new_trackid
 
-  0.01 seconds - /Users/fukai/projects/tensorstore_trackarr/src/tensorstore_trackarr/_trackarr.py:83 - _update_trackids
-  0.01 seconds - /Users/fukai/projects/tensorstore_trackarr/src/tensorstore_trackarr/_trackarr.py:247 - break_track
+  0.01 seconds - /Users/fukai/projects/tensorstore_trackarray/src/tensorstore_trackarray/_trackarr.py:83 - _update_trackids
+  0.01 seconds - /Users/fukai/projects/tensorstore_trackarray/src/tensorstore_trackarray/_trackarr.py:247 - break_track

@@ -1,23 +1,23 @@
 # Tensorstore Trackarr
 
-[![PyPI](https://img.shields.io/pypi/v/tensorstore-trackarr.svg)][pypi_]
-[![Status](https://img.shields.io/pypi/status/tensorstore-trackarr.svg)][status]
-[![Python Version](https://img.shields.io/pypi/pyversions/tensorstore-trackarr)][python version]
-[![License](https://img.shields.io/pypi/l/tensorstore-trackarr)][license]
+[![PyPI](https://img.shields.io/pypi/v/tensorstore-trackarray.svg)][pypi_]
+[![Status](https://img.shields.io/pypi/status/tensorstore-trackarray.svg)][status]
+[![Python Version](https://img.shields.io/pypi/pyversions/tensorstore-trackarray)][python version]
+[![License](https://img.shields.io/pypi/l/tensorstore-trackarray)][license]
 
-[![Read the documentation at https://tensorstore-trackarr.readthedocs.io/](https://img.shields.io/readthedocs/tensorstore-trackarr/latest.svg?label=Read%20the%20Docs)][read the docs]
-[![Tests](https://github.com/yfukai/tensorstore-trackarr/workflows/Tests/badge.svg)][tests]
-[![Codecov](https://codecov.io/gh/yfukai/tensorstore-trackarr/branch/main/graph/badge.svg)][codecov]
+[![Read the documentation at https://tensorstore-trackarray.readthedocs.io/](https://img.shields.io/readthedocs/tensorstore-trackarray/latest.svg?label=Read%20the%20Docs)][read the docs]
+[![Tests](https://github.com/yfukai/tensorstore-trackarray/workflows/Tests/badge.svg)][tests]
+[![Codecov](https://codecov.io/gh/yfukai/tensorstore-trackarray/branch/main/graph/badge.svg)][codecov]
 
 [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)][pre-commit]
 [![Black](https://img.shields.io/badge/code%20style-black-000000.svg)][black]
 
-[pypi_]: https://pypi.org/project/tensorstore-trackarr/
-[status]: https://pypi.org/project/tensorstore-trackarr/
-[python version]: https://pypi.org/project/tensorstore-trackarr
-[read the docs]: https://tensorstore-trackarr.readthedocs.io/
-[tests]: https://github.com/yfukai/tensorstore-trackarr/actions?workflow=Tests
-[codecov]: https://app.codecov.io/gh/yfukai/tensorstore-trackarr
+[pypi_]: https://pypi.org/project/tensorstore-trackarray/
+[status]: https://pypi.org/project/tensorstore-trackarray/
+[python version]: https://pypi.org/project/tensorstore-trackarray
+[read the docs]: https://tensorstore-trackarray.readthedocs.io/
+[tests]: https://github.com/yfukai/tensorstore-trackarray/actions?workflow=Tests
+[codecov]: https://app.codecov.io/gh/yfukai/tensorstore-trackarray
 [pre-commit]: https://github.com/pre-commit/pre-commit
 [black]: https://github.com/psf/black
 
@@ -34,7 +34,7 @@
 You can install _Tensorstore Trackarr_ via [pip] from [PyPI]:
 
 ```console
-$ pip install tensorstore-trackarr
+$ pip install tensorstore-trackarray
 ```
 
 ## Usage
@@ -63,11 +63,11 @@ This project was generated from [@cjolowicz]'s [Hypermodern Python Cookiecutter]
 [@cjolowicz]: https://github.com/cjolowicz
 [pypi]: https://pypi.org/
 [hypermodern python cookiecutter]: https://github.com/cjolowicz/cookiecutter-hypermodern-python
-[file an issue]: https://github.com/yfukai/tensorstore-trackarr/issues
+[file an issue]: https://github.com/yfukai/tensorstore-trackarray/issues
 [pip]: https://pip.pypa.io/
 
 <!-- github-only -->
 
-[license]: https://github.com/yfukai/tensorstore-trackarr/blob/main/LICENSE
-[contributor guide]: https://github.com/yfukai/tensorstore-trackarr/blob/main/CONTRIBUTING.md
-[command-line reference]: https://tensorstore-trackarr.readthedocs.io/en/latest/usage.html
+[license]: https://github.com/yfukai/tensorstore-trackarray/blob/main/LICENSE
+[contributor guide]: https://github.com/yfukai/tensorstore-trackarray/blob/main/CONTRIBUTING.md
+[command-line reference]: https://tensorstore-trackarray.readthedocs.io/en/latest/usage.html

@@ -19,5 +19,5 @@ reference
 contributing
 Code of Conduct <codeofconduct>
 License <license>
-Changelog <https://github.com/yfukai/tensorstore-trackarr/releases>
+Changelog <https://github.com/yfukai/tensorstore-trackarray/releases>
 ```

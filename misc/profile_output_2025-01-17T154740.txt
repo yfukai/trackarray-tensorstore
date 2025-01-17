@@ -1,7 +1,7 @@
 Timer unit: 1e-09 s
 
 Total time: 0.006984 s
-File: /Users/fukai/projects/tensorstore_trackarr/src/tensorstore_trackarr/_trackarr.py
+File: /Users/fukai/projects/tensorstore_trackarray/src/tensorstore_trackarray/_trackarr.py
 Function: break_track at line 246
 
 Line #      Hits         Time  Per Hit   % Time  Line Contents
@@ -61,4 +61,4 @@ Line #      Hits         Time  Per Hit   % Time  Line Contents
    298                                           
    299                                                   return new_trackid
 
-  0.01 seconds - /Users/fukai/projects/tensorstore_trackarr/src/tensorstore_trackarr/_trackarr.py:246 - break_track
+  0.01 seconds - /Users/fukai/projects/tensorstore_trackarray/src/tensorstore_trackarray/_trackarr.py:246 - break_track
