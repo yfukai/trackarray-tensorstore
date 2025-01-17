@@ -1,7 +1,7 @@
 # Usage
 
 ```{eval-rst}
-.. click:: tensorstore_trackarray.__main__:main
-    :prog: tensorstore-trackarray
+.. click:: trackarray_tensorstore.__main__:main
+    :prog: trackarray-tensorstore
     :nested: full
 ```

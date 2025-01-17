@@ -2,7 +2,8 @@ import numpy as np
 from skimage.draw import disk
 from copy import deepcopy
 import tensorstore as ts
-import tensorstore_trackarray as tta
+import trackarray_tensorstore as tta
+
 
 def get_spec(ndims):
     return {
@@ -66,19 +67,24 @@ def circular_blob_image(frame_count, image_size, num_blobs, blob_diameter, dtype
 
             # Draw the circle
             image[frame, rr, cc] = i
-    return image 
+    return image
+
 
 def test_break_track_performance(ta):
     with ts.Transaction() as txn:
-        ta.break_track(ta.array.shape[0]//2, 1, True, txn)
+        ta.break_track(ta.array.shape[0] // 2, 1, True, txn)
+
 
 def main():
     # Create a circular blob image
-    labels = circular_blob_image(10, 8192*2, 3000, 30, np.uint16)
-    ts.open(get_write_spec("/tmp/test.zarr", labels.shape)).result().write(labels).result()
+    labels = circular_blob_image(10, 8192 * 2, 3000, 30, np.uint16)
+    ts.open(get_write_spec("/tmp/test.zarr", labels.shape)).result().write(
+        labels
+    ).result()
     labels_ts = ts.open(get_read_spec("/tmp/test.zarr")).result()
     ta = tta.TrackArray(labels_ts, {}, {})
     test_break_track_performance(ta)
-    
+
+
 if __name__ == "__main__":
     main()

@@ -1,8 +1,8 @@
 # Reference
 
-## tensorstore_trackarray
+## trackarray_tensorstore
 
 ```{eval-rst}
-.. automodule:: tensorstore_trackarray
+.. automodule:: trackarray_tensorstore
    :members:
 ```

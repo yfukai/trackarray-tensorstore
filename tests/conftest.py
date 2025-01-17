@@ -7,9 +7,8 @@ import numpy as np
 import pytest
 import tensorstore as ts
 
-import tensorstore_trackarray as tta
+import trackarray_tensorstore as tta
 from ._utils import get_read_spec, get_write_spec
-
 
 
 @pytest.fixture

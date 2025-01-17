@@ -3,7 +3,7 @@
 import pytest
 from click.testing import CliRunner
 
-from tensorstore_trackarray import __main__
+from trackarray_tensorstore import __main__
 
 
 @pytest.fixture

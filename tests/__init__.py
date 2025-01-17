@@ -1,1 +1,1 @@
-"""Test suite for the tensorstore_trackarray package."""
+"""Test suite for the trackarray_tensorstore package."""

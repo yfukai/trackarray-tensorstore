@@ -1,19 +1,19 @@
 [tool.poetry]
-name = "tensorstore-trackarray"
+name = "trackarray-tensorstore"
 version = "0.0.0"
 description = "TensorStore TrackArray"
 authors = ["Yohsuke T. Fukai <ysk@yfukai.net>"]
 license = "MIT"
 readme = "README.md"
-homepage = "https://github.com/yfukai/tensorstore-trackarray"
-repository = "https://github.com/yfukai/tensorstore-trackarray"
-documentation = "https://tensorstore-trackarray.readthedocs.io"
+homepage = "https://github.com/yfukai/trackarray-tensorstore"
+repository = "https://github.com/yfukai/trackarray-tensorstore"
+documentation = "https://trackarray-tensorstore.readthedocs.io"
 classifiers = [
     "Development Status :: 1 - Planning",
 ]
 
 [tool.poetry.urls]
-Changelog = "https://github.com/yfukai/tensorstore-trackarray/releases"
+Changelog = "https://github.com/yfukai/trackarray-tensorstore/releases"
 
 [tool.poetry.dependencies]
 python = "^3.10"
@@ -51,7 +51,7 @@ xdoctest = {extras = ["colors"], version = ">=0.15.10"}
 myst-parser = {version = ">=0.16.1"}
 
 [tool.poetry.scripts]
-tensorstore-trackarray = "tensorstore_trackarray.__main__:main"
+trackarray-tensorstore = "trackarray_tensorstore.__main__:main"
 
 [tool.poetry.group.dev.dependencies]
 pytest-datadir = "^1.5.0"
@@ -67,7 +67,7 @@ tests = ["tests", "*/tests"]
 
 [tool.coverage.run]
 branch = true
-source = ["tensorstore_trackarray", "tests"]
+source = ["trackarray_tensorstore", "tests"]
 
 [tool.coverage.report]
 show_missing = true

@@ -9,6 +9,7 @@ from numpy import typing as npt
 from skimage.measure import regionprops_table
 from line_profiler import profile
 
+
 def to_bbox_df(label: npt.ArrayLike) -> pd.DataFrame:
     bbox_df = pd.concat(
         [
@@ -30,17 +31,26 @@ def to_bbox_df(label: npt.ArrayLike) -> pd.DataFrame:
     del bbox_df["bbox-0"], bbox_df["bbox-1"], bbox_df["bbox-2"], bbox_df["bbox-3"]
     return bbox_df
 
+
 def _bbox_df_to_dict(bboxes_df):
-    return {label:grp.set_index("frame").sort_index() for label, grp in bboxes_df.groupby("label")}
+    return {
+        label: grp.set_index("frame").sort_index()
+        for label, grp in bboxes_df.groupby("label")
+    }
+
+
 def _bbox_dict_to_df(bboxes_dict):
-    return pd.concat([grp.assign(label=label).reset_index() for label, grp in bboxes_dict.items()])
+    return pd.concat(
+        [grp.assign(label=label).reset_index() for label, grp in bboxes_dict.items()]
+    )
+
 
 class TrackArray:
     def __init__(
         self,
         ts_array: ts.TensorStore,
         splits: Dict[int, List[int]],
-        termination_annotations: Dict[int,str],
+        termination_annotations: Dict[int, str],
         bboxes_df=None,
     ):
         self.array = ts_array
@@ -54,9 +64,19 @@ class TrackArray:
     def is_valid(self):
         _bboxes_df1 = to_bbox_df(self.array)
         _bboxes_df2 = _bbox_dict_to_df(self._bboxes_dict)
-        is_all_sorted = all([_df.index.is_monotonic_increasing for _df in self._bboxes_dict.values()])
-        return _bboxes_df1.sort_values(["frame","label"]).set_index(["frame","label"]).equals(
-            _bboxes_df2.sort_values(["frame","label"]).set_index(["frame","label"])) & is_all_sorted
+        is_all_sorted = all(
+            [_df.index.is_monotonic_increasing for _df in self._bboxes_dict.values()]
+        )
+        return (
+            _bboxes_df1.sort_values(["frame", "label"])
+            .set_index(["frame", "label"])
+            .equals(
+                _bboxes_df2.sort_values(["frame", "label"]).set_index(
+                    ["frame", "label"]
+                )
+            )
+            & is_all_sorted
+        )
 
     def _update_safe_label(self, new_label):
         self._safe_label = max(self._safe_label, new_label + 1)
@@ -73,13 +93,13 @@ class TrackArray:
 
     def __update_trackids_in_bboxes(self, frames, old_trackid, new_trackid):
         previous_rows = self._bboxes_dict[old_trackid].loc[frames]
-        self._bboxes_dict[new_trackid] = pd.concat([
-            self._get_track_bboxes(new_trackid),
-            previous_rows]).sort_index()
+        self._bboxes_dict[new_trackid] = pd.concat(
+            [self._get_track_bboxes(new_trackid), previous_rows]
+        ).sort_index()
         self._bboxes_dict[old_trackid].drop(index=frames, inplace=True)
         if self._bboxes_dict[old_trackid].empty:
             self._bboxes_dict.pop(old_trackid)
-        
+
     def _update_trackids(
         self,
         frames: Sequence[int],
@@ -89,11 +109,14 @@ class TrackArray:
     ):
         if not set(frames).isdisjoint(self._get_track_bboxes(new_trackid).index):
             raise ValueError(
-                f"new_trackid {new_trackid} already exists in the bboxes at frame {frames}")
+                f"new_trackid {new_trackid} already exists in the bboxes at frame {frames}"
+            )
 
         array_txn = self.array.with_transaction(txn)
         rows = self._get_bboxes(frames, trackid)
-        min_ys, min_xs, max_ys, max_xs = rows[["min_y", "min_x", "max_y", "max_x"]].values.T
+        min_ys, min_xs, max_ys, max_xs = rows[
+            ["min_y", "min_x", "max_y", "max_x"]
+        ].values.T
         for frame, min_y, min_x, max_y, max_x in zip(
             frames, min_ys, min_xs, max_ys, max_xs
         ):
@@ -101,7 +124,7 @@ class TrackArray:
             ind = np.array(subarr) == trackid
             subarr[ts.d[:].translate_to[0]][ind] = new_trackid
             # Replace the trackid with the new_trackid
-            
+
         self.__update_trackids_in_bboxes(frames, trackid, new_trackid)
         self._update_safe_label(new_trackid)
 
@@ -113,7 +136,7 @@ class TrackArray:
                     int(daughter) for daughter in daughters if daughter != trackid
                 ]
         self.cleanup_single_daughter_splits()
-       
+
     def _cleanup_track_as_parent(self, trackid: int):
         self.termination_annotations.pop(trackid, None)
         self.splits.pop(trackid, None)
@@ -126,7 +149,7 @@ class TrackArray:
         cleanup: bool = True,
     ):
         row = self._get_bboxes([frame], trackid).iloc[0]
-        min_y, min_x, max_y, max_x = row[['min_y', 'min_x', 'max_y', 'max_x']]
+        min_y, min_x, max_y, max_x = row[["min_y", "min_x", "max_y", "max_x"]]
         array_txn = self.array.with_transaction(txn)
         subarr = array_txn[frame, min_y:max_y, min_x:max_x]
         ind = np.array(subarr) == trackid
@@ -187,7 +210,9 @@ class TrackArray:
 
         # Update the bboxes_df for the possibly updated labels by overlapping with the new mask
         for updated_label in possibly_updated_labels:
-            min_y, min_x, max_y, max_x = self._get_bboxes([frame], updated_label).iloc[0][["min_y", "min_x", "max_y", "max_x"]]
+            min_y, min_x, max_y, max_x = self._get_bboxes([frame], updated_label).iloc[
+                0
+            ][["min_y", "min_x", "max_y", "max_x"]]
             sublabel = array_txn[frame, min_y:max_y, min_x:max_x]
             ind = np.nonzero(np.array(sublabel) == updated_label)
             if np.any(ind):
@@ -257,9 +282,11 @@ class TrackArray:
         if change_after:
             change_bboxes_df = bboxes_df.loc[new_start_frame:]
         else:
-            change_bboxes_df = bboxes_df.loc[:new_start_frame-1]
+            change_bboxes_df = bboxes_df.loc[: new_start_frame - 1]
 
-        if not set(change_bboxes_df.index).isdisjoint(self._get_track_bboxes(new_trackid).index):
+        if not set(change_bboxes_df.index).isdisjoint(
+            self._get_track_bboxes(new_trackid).index
+        ):
             raise ValueError("new_trackid already exists in the bboxes_df")
 
         frame_min = bboxes_df.index.values[0]
@@ -323,7 +350,5 @@ class TrackArray:
             if len(daughters) == 1:
                 daughter = int(daughters[0])
                 track_df = self._get_track_bboxes(daughter)
-                self._update_trackids(
-                    track_df.index, daughter, parent, None
-                )
+                self._update_trackids(track_df.index, daughter, parent, None)
                 self.splits.pop(int(parent))

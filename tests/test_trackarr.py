@@ -6,7 +6,7 @@ import pytest
 import tensorstore as ts
 from skimage.util import map_array
 
-import tensorstore_trackarray as tta
+import trackarray_tensorstore as tta
 from ._utils import compare_nested_structures
 
 
@@ -74,6 +74,7 @@ def test_delete_mask(trackarr_from_name):
                 assert label not in split_dict2
                 assert all(label not in v for v in split_dict2.values())
                 assert label not in ta.termination_annotations
+
 
 def test_add_mask(trackarr_from_name):
     ta, labels, _ = trackarr_from_name("original")
