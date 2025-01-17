@@ -7,7 +7,6 @@ import pandas as pd
 import tensorstore as ts
 from numpy import typing as npt
 from skimage.measure import regionprops_table
-from line_profiler import profile
 
 
 def to_bbox_df(label: npt.ArrayLike) -> pd.DataFrame:
