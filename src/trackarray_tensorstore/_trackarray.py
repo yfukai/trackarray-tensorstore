@@ -48,18 +48,25 @@ class TrackArray:
     def __init__(
         self,
         ts_array: ts.TensorStore,
-        splits: Dict[int, List[int]],
-        termination_annotations: Dict[int, str],
-        bboxes_df=None,
+        splits: Optional[Dict[int, List[int]]] = None,
+        termination_annotations: Optional[Dict[int, str]]=None,
+        bboxes_df=None,*,
         property_writer=None,
     ):
-        self.array = ts_array
-        if bboxes_df is None:
-            bboxes_df = to_bbox_df(ts_array)
-        self._bboxes_dict = _bbox_df_to_dict(bboxes_df)
+        if property_writer is None and (splits is None or termination_annotations is None):
+            raise ValueError("property_writer is not set, splits and termination_annotations must be set.")
+        
+        self.array = ts_array        
+        if property_writer is not None:
+            _bbox_df, _splits, _termination_annotations = property_writer.read()  
+        elif bboxes_df is None:
+            _bbox_df = to_bbox_df(ts_array)
+        _bbox_df = bboxes_df if bboxes_df is not None else _bbox_df
+        self._bboxes_dict = _bbox_df_to_dict(_bbox_df)
         self._safe_label = max(self._bboxes_dict.keys()) + 1
-        self.splits = splits
-        self.termination_annotations = termination_annotations
+        
+        self.splits = splits if splits is not None else _splits
+        self.termination_annotations = termination_annotations if termination_annotations is not None else _termination_annotations
         self.property_writer = property_writer
 
     def is_valid(self):
@@ -78,6 +85,14 @@ class TrackArray:
             )
             & is_all_sorted
         )
+
+    def write_properties(self):
+        if self.property_writer is not None:
+            self.property_writer.write(
+                self._bboxes_dict, self.splits, self.termination_annotations
+            )
+        else:
+            raise ValueError("property_writer is not set, cannot write properties.")
 
     def _update_safe_label(self, new_label):
         self._safe_label = max(self._safe_label, new_label + 1)

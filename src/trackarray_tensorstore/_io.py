@@ -3,6 +3,11 @@ from enum import Enum
 import pandas as pd
 from typing import Tuple, Dict
 from pathlib import Path
+from ._trackarray import TrackArray
+
+def read_files(ts_array, bboxes_df_file_path, props_json_file_path = None):
+    writer = FilesPropsIO(bboxes_df_file_path, props_json_file_path)
+    return TrackArray(ts_array,property_writer=writer)
 
 class FilesPropsIO:
     class DataFileType(Enum):
