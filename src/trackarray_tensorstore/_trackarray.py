@@ -94,7 +94,7 @@ class TrackArray:
     def write_properties(self):
         if self.property_writer is not None:
             self.property_writer.write(
-                self._bboxes_dict, self.splits, self.termination_annotations, self.attrs
+                _bbox_dict_to_df(self._bboxes_dict), self.splits, self.termination_annotations, self.attrs
             )
         else:
             raise ValueError("property_writer is not set, cannot write properties.")
