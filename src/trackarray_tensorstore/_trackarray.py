@@ -41,7 +41,7 @@ def _bbox_df_to_dict(bboxes_df):
 def _bbox_dict_to_df(bboxes_dict):
     return pd.concat(
         [grp.assign(label=label).reset_index() for label, grp in bboxes_dict.items()]
-    )
+    ).reset_index(drop=True)
 
 
 class TrackArray:
@@ -51,6 +51,7 @@ class TrackArray:
         splits: Dict[int, List[int]],
         termination_annotations: Dict[int, str],
         bboxes_df=None,
+        property_writer=None,
     ):
         self.array = ts_array
         if bboxes_df is None:
@@ -59,6 +60,7 @@ class TrackArray:
         self._safe_label = max(self._bboxes_dict.keys()) + 1
         self.splits = splits
         self.termination_annotations = termination_annotations
+        self.property_writer = property_writer
 
     def is_valid(self):
         _bboxes_df1 = to_bbox_df(self.array)

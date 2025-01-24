@@ -1,0 +1,731 @@
+{
+    "machine_info": {
+        "node": "MacBook-Pro-7.local",
+        "processor": "i386",
+        "machine": "arm64",
+        "python_compiler": "Clang 14.0.0 (clang-1400.0.29.202)",
+        "python_implementation": "CPython",
+        "python_implementation_version": "3.13.1",
+        "python_version": "3.13.1",
+        "python_build": [
+            "main",
+            "Dec 26 2024 01:52:16"
+        ],
+        "release": "21.6.0",
+        "system": "Darwin",
+        "cpu": {
+            "python_version": "3.13.1.final.0 (64 bit)",
+            "cpuinfo_version": [
+                9,
+                0,
+                0
+            ],
+            "cpuinfo_version_string": "9.0.0",
+            "arch": "ARM_8",
+            "bits": 64,
+            "count": 10,
+            "arch_string_raw": "arm64",
+            "brand_raw": "Apple M1 Pro"
+        }
+    },
+    "commit_info": {
+        "id": "22e4b69c170bafce264009f41adbe60d923107f8",
+        "time": "2025-01-17T16:46:10+09:00",
+        "author_time": "2025-01-17T16:46:10+09:00",
+        "dirty": true,
+        "project": "tensorstore_trackarr",
+        "branch": "main"
+    },
+    "benchmarks": [
+        {
+            "group": null,
+            "name": "test_break_track_performance[circular_blob_image0]",
+            "fullname": "tests/test_trackarray_performance.py::test_break_track_performance[circular_blob_image0]",
+            "params": {
+                "circular_blob_image": [
+                    10,
+                    2048,
+                    300,
+                    30,
+                    "UNSERIALIZABLE[<class 'numpy.uint16'>]"
+                ]
+            },
+            "param": "circular_blob_image0",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.0005318330076988786,
+                "max": 0.0010605000134091824,
+                "mean": 0.0005925200139172375,
+                "stddev": 7.777086306243057e-05,
+                "rounds": 125,
+                "median": 0.0005652079998981208,
+                "iqr": 4.84692573081702e-05,
+                "q1": 0.0005498227474163286,
+                "q3": 0.0005982920047244988,
+                "iqr_outliers": 14,
+                "stddev_outliers": 14,
+                "outliers": "14;14",
+                "ld15iqr": 0.0005318330076988786,
+                "hd15iqr": 0.0006783749850001186,
+                "ops": 1687.7067044349303,
+                "total": 0.07406500173965469,
+                "iterations": 1
+            }
+        },
+        {
+            "group": null,
+            "name": "test_break_track_performance[circular_blob_image1]",
+            "fullname": "tests/test_trackarray_performance.py::test_break_track_performance[circular_blob_image1]",
+            "params": {
+                "circular_blob_image": [
+                    10,
+                    2048,
+                    300,
+                    30,
+                    "UNSERIALIZABLE[<class 'numpy.uint32'>]"
+                ]
+            },
+            "param": "circular_blob_image1",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.0005416670173872262,
+                "max": 0.00272958300774917,
+                "mean": 0.0006216095720227157,
+                "stddev": 0.00019383163303141586,
+                "rounds": 149,
+                "median": 0.000573665980482474,
+                "iqr": 5.6010241678450257e-05,
+                "q1": 0.0005554372619371861,
+                "q3": 0.0006114475036156364,
+                "iqr_outliers": 23,
+                "stddev_outliers": 8,
+                "outliers": "8;23",
+                "ld15iqr": 0.0005416670173872262,
+                "hd15iqr": 0.000696416012942791,
+                "ops": 1608.7268359558925,
+                "total": 0.09261982623138465,
+                "iterations": 1
+            }
+        },
+        {
+            "group": null,
+            "name": "test_break_track_performance[circular_blob_image2]",
+            "fullname": "tests/test_trackarray_performance.py::test_break_track_performance[circular_blob_image2]",
+            "params": {
+                "circular_blob_image": [
+                    10,
+                    2048,
+                    3000,
+                    30,
+                    "UNSERIALIZABLE[<class 'numpy.uint16'>]"
+                ]
+            },
+            "param": "circular_blob_image2",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.0005384999967645854,
+                "max": 0.001760957995429635,
+                "mean": 0.0006196554008799938,
+                "stddev": 0.00012875277202204389,
+                "rounds": 137,
+                "median": 0.0005775419995188713,
+                "iqr": 6.83019679854624e-05,
+                "q1": 0.0005608855208265595,
+                "q3": 0.0006291874888120219,
+                "iqr_outliers": 15,
+                "stddev_outliers": 13,
+                "outliers": "13;15",
+                "ld15iqr": 0.0005384999967645854,
+                "hd15iqr": 0.0007380830065812916,
+                "ops": 1613.8001840698328,
+                "total": 0.08489278992055915,
+                "iterations": 1
+            }
+        },
+        {
+            "group": null,
+            "name": "test_break_track_performance[circular_blob_image3]",
+            "fullname": "tests/test_trackarray_performance.py::test_break_track_performance[circular_blob_image3]",
+            "params": {
+                "circular_blob_image": [
+                    10,
+                    2048,
+                    3000,
+                    30,
+                    "UNSERIALIZABLE[<class 'numpy.uint32'>]"
+                ]
+            },
+            "param": "circular_blob_image3",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.0005332500149961561,
+                "max": 0.0009670830040704459,
+                "mean": 0.0005834073424921371,
+                "stddev": 6.674637914624695e-05,
+                "rounds": 120,
+                "median": 0.0005577295087277889,
+                "iqr": 4.635450022760779e-05,
+                "q1": 0.0005466044967761263,
+                "q3": 0.0005929589970037341,
+                "iqr_outliers": 14,
+                "stddev_outliers": 15,
+                "outliers": "15;14",
+                "ld15iqr": 0.0005332500149961561,
+                "hd15iqr": 0.0006655830075033009,
+                "ops": 1714.0682455731649,
+                "total": 0.07000888109905645,
+                "iterations": 1
+            }
+        },
+        {
+            "group": null,
+            "name": "test_break_track_performance[circular_blob_image4]",
+            "fullname": "tests/test_trackarray_performance.py::test_break_track_performance[circular_blob_image4]",
+            "params": {
+                "circular_blob_image": [
+                    10,
+                    16384,
+                    300,
+                    30,
+                    "UNSERIALIZABLE[<class 'numpy.uint16'>]"
+                ]
+            },
+            "param": "circular_blob_image4",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.0005294170114211738,
+                "max": 0.0009751660109031945,
+                "mean": 0.0005878924178735664,
+                "stddev": 7.554049021431068e-05,
+                "rounds": 96,
+                "median": 0.000560875007067807,
+                "iqr": 4.077100311405957e-05,
+                "q1": 0.0005490210023708642,
+                "q3": 0.0005897920054849237,
+                "iqr_outliers": 10,
+                "stddev_outliers": 9,
+                "outliers": "9;10",
+                "ld15iqr": 0.0005294170114211738,
+                "hd15iqr": 0.0006594159931410104,
+                "ops": 1700.9914902747778,
+                "total": 0.05643767211586237,
+                "iterations": 1
+            }
+        },
+        {
+            "group": null,
+            "name": "test_break_track_performance[circular_blob_image5]",
+            "fullname": "tests/test_trackarray_performance.py::test_break_track_performance[circular_blob_image5]",
+            "params": {
+                "circular_blob_image": [
+                    10,
+                    16384,
+                    300,
+                    30,
+                    "UNSERIALIZABLE[<class 'numpy.uint32'>]"
+                ]
+            },
+            "param": "circular_blob_image5",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.0005360409850254655,
+                "max": 0.001531541027361527,
+                "mean": 0.0006623197323381064,
+                "stddev": 0.00017640839965787596,
+                "rounds": 89,
+                "median": 0.0006047080096323043,
+                "iqr": 0.00011327122774673626,
+                "q1": 0.0005624997647828422,
+                "q3": 0.0006757709925295785,
+                "iqr_outliers": 10,
+                "stddev_outliers": 10,
+                "outliers": "10;10",
+                "ld15iqr": 0.0005360409850254655,
+                "hd15iqr": 0.0008594169921707362,
+                "ops": 1509.8447942503876,
+                "total": 0.058946456178091466,
+                "iterations": 1
+            }
+        },
+        {
+            "group": null,
+            "name": "test_break_track_performance[circular_blob_image6]",
+            "fullname": "tests/test_trackarray_performance.py::test_break_track_performance[circular_blob_image6]",
+            "params": {
+                "circular_blob_image": [
+                    10,
+                    16384,
+                    3000,
+                    30,
+                    "UNSERIALIZABLE[<class 'numpy.uint16'>]"
+                ]
+            },
+            "param": "circular_blob_image6",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.0005424580012913793,
+                "max": 0.0010799160227179527,
+                "mean": 0.0006237805117757953,
+                "stddev": 0.00012229637413680317,
+                "rounds": 98,
+                "median": 0.0005725204973714426,
+                "iqr": 7.387500954791903e-05,
+                "q1": 0.0005538749974220991,
+                "q3": 0.0006277500069700181,
+                "iqr_outliers": 12,
+                "stddev_outliers": 12,
+                "outliers": "12;12",
+                "ld15iqr": 0.0005424580012913793,
+                "hd15iqr": 0.000761916016926989,
+                "ops": 1603.1279931352342,
+                "total": 0.06113049015402794,
+                "iterations": 1
+            }
+        },
+        {
+            "group": null,
+            "name": "test_break_track_performance[circular_blob_image7]",
+            "fullname": "tests/test_trackarray_performance.py::test_break_track_performance[circular_blob_image7]",
+            "params": {
+                "circular_blob_image": [
+                    10,
+                    16384,
+                    3000,
+                    30,
+                    "UNSERIALIZABLE[<class 'numpy.uint32'>]"
+                ]
+            },
+            "param": "circular_blob_image7",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.0005419170192908496,
+                "max": 0.009669332997873425,
+                "mean": 0.0007434253290406253,
+                "stddev": 0.0009121339705440653,
+                "rounds": 101,
+                "median": 0.000590000010561198,
+                "iqr": 0.00013589599257102236,
+                "q1": 0.0005634475091937929,
+                "q3": 0.0006993435017648153,
+                "iqr_outliers": 6,
+                "stddev_outliers": 2,
+                "outliers": "2;6",
+                "ld15iqr": 0.0005419170192908496,
+                "hd15iqr": 0.0009255409822799265,
+                "ops": 1345.1250057493721,
+                "total": 0.07508595823310316,
+                "iterations": 1
+            }
+        },
+        {
+            "group": null,
+            "name": "test_break_track_performance[circular_blob_image8]",
+            "fullname": "tests/test_trackarray_performance.py::test_break_track_performance[circular_blob_image8]",
+            "params": {
+                "circular_blob_image": [
+                    20,
+                    2048,
+                    300,
+                    30,
+                    "UNSERIALIZABLE[<class 'numpy.uint16'>]"
+                ]
+            },
+            "param": "circular_blob_image8",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.0005448749870993197,
+                "max": 0.0009542079933453351,
+                "mean": 0.0006277389991885925,
+                "stddev": 0.00010270516690792807,
+                "rounds": 49,
+                "median": 0.000576208985876292,
+                "iqr": 9.152099664788693e-05,
+                "q1": 0.0005634897679556161,
+                "q3": 0.000655010764603503,
+                "iqr_outliers": 5,
+                "stddev_outliers": 8,
+                "outliers": "8;5",
+                "ld15iqr": 0.0005448749870993197,
+                "hd15iqr": 0.0008005000127013773,
+                "ops": 1593.0187566689137,
+                "total": 0.030759210960241035,
+                "iterations": 1
+            }
+        },
+        {
+            "group": null,
+            "name": "test_break_track_performance[circular_blob_image9]",
+            "fullname": "tests/test_trackarray_performance.py::test_break_track_performance[circular_blob_image9]",
+            "params": {
+                "circular_blob_image": [
+                    20,
+                    2048,
+                    300,
+                    30,
+                    "UNSERIALIZABLE[<class 'numpy.uint32'>]"
+                ]
+            },
+            "param": "circular_blob_image9",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.0005414169863797724,
+                "max": 0.001015332993119955,
+                "mean": 0.0006158020009934262,
+                "stddev": 0.00011218408992138115,
+                "rounds": 64,
+                "median": 0.000570062009501271,
+                "iqr": 6.19790080236271e-05,
+                "q1": 0.0005542084982153028,
+                "q3": 0.0006161875062389299,
+                "iqr_outliers": 8,
+                "stddev_outliers": 7,
+                "outliers": "7;8",
+                "ld15iqr": 0.0005414169863797724,
+                "hd15iqr": 0.0007197920058388263,
+                "ops": 1623.8985881610918,
+                "total": 0.039411328063579276,
+                "iterations": 1
+            }
+        },
+        {
+            "group": null,
+            "name": "test_break_track_performance[circular_blob_image10]",
+            "fullname": "tests/test_trackarray_performance.py::test_break_track_performance[circular_blob_image10]",
+            "params": {
+                "circular_blob_image": [
+                    20,
+                    2048,
+                    3000,
+                    30,
+                    "UNSERIALIZABLE[<class 'numpy.uint16'>]"
+                ]
+            },
+            "param": "circular_blob_image10",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.000541459012310952,
+                "max": 0.0010632080084178597,
+                "mean": 0.0006195932031822217,
+                "stddev": 0.00012116341246389764,
+                "rounds": 59,
+                "median": 0.0005687910015694797,
+                "iqr": 6.309401214821264e-05,
+                "q1": 0.0005566352410824038,
+                "q3": 0.0006197292532306165,
+                "iqr_outliers": 7,
+                "stddev_outliers": 6,
+                "outliers": "6;7",
+                "ld15iqr": 0.000541459012310952,
+                "hd15iqr": 0.0007372499967459589,
+                "ops": 1613.9621849691289,
+                "total": 0.03655599898775108,
+                "iterations": 1
+            }
+        },
+        {
+            "group": null,
+            "name": "test_break_track_performance[circular_blob_image11]",
+            "fullname": "tests/test_trackarray_performance.py::test_break_track_performance[circular_blob_image11]",
+            "params": {
+                "circular_blob_image": [
+                    20,
+                    2048,
+                    3000,
+                    30,
+                    "UNSERIALIZABLE[<class 'numpy.uint32'>]"
+                ]
+            },
+            "param": "circular_blob_image11",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.0005389169964473695,
+                "max": 0.0010475830058567226,
+                "mean": 0.0006234154399648747,
+                "stddev": 0.0001212432684635816,
+                "rounds": 68,
+                "median": 0.0005778750055469573,
+                "iqr": 6.985450454521924e-05,
+                "q1": 0.0005511874915100634,
+                "q3": 0.0006210419960552827,
+                "iqr_outliers": 10,
+                "stddev_outliers": 9,
+                "outliers": "9;10",
+                "ld15iqr": 0.0005389169964473695,
+                "hd15iqr": 0.0007270830101333559,
+                "ops": 1604.0667841918437,
+                "total": 0.04239224991761148,
+                "iterations": 1
+            }
+        },
+        {
+            "group": null,
+            "name": "test_break_track_performance[circular_blob_image12]",
+            "fullname": "tests/test_trackarray_performance.py::test_break_track_performance[circular_blob_image12]",
+            "params": {
+                "circular_blob_image": [
+                    20,
+                    16384,
+                    300,
+                    30,
+                    "UNSERIALIZABLE[<class 'numpy.uint16'>]"
+                ]
+            },
+            "param": "circular_blob_image12",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.0005467500013764948,
+                "max": 0.0009198749903589487,
+                "mean": 0.0006082819532440586,
+                "stddev": 9.358759938243181e-05,
+                "rounds": 43,
+                "median": 0.0005721249908674508,
+                "iqr": 4.843748320126906e-05,
+                "q1": 0.0005573640155489556,
+                "q3": 0.0006058014987502247,
+                "iqr_outliers": 5,
+                "stddev_outliers": 5,
+                "outliers": "5;5",
+                "ld15iqr": 0.0005467500013764948,
+                "hd15iqr": 0.0007039170013740659,
+                "ops": 1643.9744672135193,
+                "total": 0.026156123989494517,
+                "iterations": 1
+            }
+        },
+        {
+            "group": null,
+            "name": "test_break_track_performance[circular_blob_image13]",
+            "fullname": "tests/test_trackarray_performance.py::test_break_track_performance[circular_blob_image13]",
+            "params": {
+                "circular_blob_image": [
+                    20,
+                    16384,
+                    300,
+                    30,
+                    "UNSERIALIZABLE[<class 'numpy.uint32'>]"
+                ]
+            },
+            "param": "circular_blob_image13",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.0005485000147018582,
+                "max": 0.0010820419993251562,
+                "mean": 0.0006191389298432373,
+                "stddev": 0.00011430564310002494,
+                "rounds": 42,
+                "median": 0.0005735415033996105,
+                "iqr": 4.929202259518206e-05,
+                "q1": 0.0005616249982267618,
+                "q3": 0.0006109170208219439,
+                "iqr_outliers": 6,
+                "stddev_outliers": 4,
+                "outliers": "4;6",
+                "ld15iqr": 0.0005485000147018582,
+                "hd15iqr": 0.0007153750048018992,
+                "ops": 1615.1463779756098,
+                "total": 0.02600383505341597,
+                "iterations": 1
+            }
+        },
+        {
+            "group": null,
+            "name": "test_break_track_performance[circular_blob_image14]",
+            "fullname": "tests/test_trackarray_performance.py::test_break_track_performance[circular_blob_image14]",
+            "params": {
+                "circular_blob_image": [
+                    20,
+                    16384,
+                    3000,
+                    30,
+                    "UNSERIALIZABLE[<class 'numpy.uint16'>]"
+                ]
+            },
+            "param": "circular_blob_image14",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.000542959023732692,
+                "max": 0.0009738749940879643,
+                "mean": 0.0006051614028613337,
+                "stddev": 8.680851602544964e-05,
+                "rounds": 55,
+                "median": 0.0005758749903179705,
+                "iqr": 4.2490231862757355e-05,
+                "q1": 0.0005594995163846761,
+                "q3": 0.0006019897482474335,
+                "iqr_outliers": 7,
+                "stddev_outliers": 7,
+                "outliers": "7;7",
+                "ld15iqr": 0.000542959023732692,
+                "hd15iqr": 0.0007155420025810599,
+                "ops": 1652.4517182883512,
+                "total": 0.033283877157373354,
+                "iterations": 1
+            }
+        },
+        {
+            "group": null,
+            "name": "test_break_track_performance[circular_blob_image15]",
+            "fullname": "tests/test_trackarray_performance.py::test_break_track_performance[circular_blob_image15]",
+            "params": {
+                "circular_blob_image": [
+                    20,
+                    16384,
+                    3000,
+                    30,
+                    "UNSERIALIZABLE[<class 'numpy.uint32'>]"
+                ]
+            },
+            "param": "circular_blob_image15",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.0005480000108946115,
+                "max": 0.001059500005794689,
+                "mean": 0.0006219747714525045,
+                "stddev": 0.00011384387734357541,
+                "rounds": 43,
+                "median": 0.0005749170086346567,
+                "iqr": 5.9186742873862386e-05,
+                "q1": 0.000559531501494348,
+                "q3": 0.0006187182443682104,
+                "iqr_outliers": 7,
+                "stddev_outliers": 6,
+                "outliers": "6;7",
+                "ld15iqr": 0.0005480000108946115,
+                "hd15iqr": 0.0007324170146603137,
+                "ops": 1607.7822540369104,
+                "total": 0.026744915172457695,
+                "iterations": 1
+            }
+        }
+    ],
+    "datetime": "2025-01-24T02:27:01.340999+00:00",
+    "version": "5.1.0"
+}

@@ -23,6 +23,18 @@ def test_to_bbox_df(labels_dir):
             assert row["min_y"] == ind[0].min()
             assert row["max_y"] == ind[0].max() + 1
 
+def test_df_conversion(labels_dir):
+    labels = np.load(labels_dir / "original_labels.npy")
+    bbox_df = tta.to_bbox_df(labels)
+    bbox_df2 = bbox_df.copy().sort_values(["frame","label"]).reset_index(drop=True)
+    # make sure the columns starts by frame and label
+    bbox_df2 = bbox_df2[["frame","label"]+list(bbox_df2.columns[2:])]
+    test_dict = tta._trackarray._bbox_df_to_dict(bbox_df)
+    bbox_df3 = tta._trackarray._bbox_dict_to_df(test_dict)
+    bbox_df3 = bbox_df3.sort_values(["frame","label"]).reset_index(drop=True)
+    bbox_df3 = bbox_df3[["frame","label"]+list(bbox_df3.columns[2:])]
+    assert bbox_df2.equals(bbox_df3)
+    
 
 def test_trackarr_fixture_always_new(labels_dir, trackarr_from_name):
     ta, _, _ = trackarr_from_name("original")

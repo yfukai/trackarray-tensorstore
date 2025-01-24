@@ -16,7 +16,7 @@ classifiers = [
 Changelog = "https://github.com/yfukai/trackarray-tensorstore/releases"
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = "^3.11"
 click = ">=8.0.1"
 tensorstore = "^0.1.71"
 numpy = "^2.2.1"
@@ -60,6 +60,8 @@ matplotlib = "^3.10.0"
 pytest-benchmark = "^5.1.0"
 line-profiler = "^4.2.0"
 scipy = "^1.15.1"
+pyarrow = "^19.0.0"
+tables = "^3.10.2"
 
 [tool.coverage.paths]
 source = ["src", "*/site-packages"]
