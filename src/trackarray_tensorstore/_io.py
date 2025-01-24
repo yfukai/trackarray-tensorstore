@@ -59,9 +59,9 @@ class FilesPropsIO:
                            for k,vs in props["splits"].items()}
         termination_annotations = {int(k):str(v) 
                     for k,v in props["termination_annotations"].items()}
-        return df, splits, termination_annotations
+        return df, splits, termination_annotations, props["attrs"]
 
-    def write(self, df: pd.DataFrame, splits: Dict, termination_annotations: Dict):
+    def write(self, df: pd.DataFrame, splits: Dict, termination_annotations: Dict, attrs: Dict):
         if self.dataframe_filetype == FilesPropsIO.DataFileType.CSV:
             df.to_csv(self.bboxes_df_file_path)
         elif self.dataframe_filetype == FilesPropsIO.DataFileType.FEATHER:
@@ -72,6 +72,6 @@ class FilesPropsIO:
             df.to_hdf(self.bboxes_df_file_path,key="bbox_df")
         with open(self.props_json_file_path, "w") as file:
             json.dump(
-                {"splits": splits, "termination_annotations": termination_annotations},
+                {"splits": splits, "termination_annotations": termination_annotations,"attrs":attrs},
                 file,
             )

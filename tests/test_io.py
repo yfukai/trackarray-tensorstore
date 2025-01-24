@@ -10,12 +10,14 @@ def _test_write_read_same(cls, trackarr_from_name, tmp_path, **kwargs):
     ta, labels, splits = trackarr_from_name("original")
     bbox_df = tta._trackarray._bbox_dict_to_df(ta._bboxes_dict)
     termination_annotations = {int(i):f"test_{i}" for i in np.unique(labels)}
+    attrs = {"test": "test"}
     readwrite = cls(tmp_path/"test", tmp_path/"test", **kwargs)
-    readwrite.write(bbox_df, splits, termination_annotations)
-    bbox_df2, splits2, termination_annotations2 = readwrite.read()
+    readwrite.write(bbox_df, splits, termination_annotations, attrs)
+    bbox_df2, splits2, termination_annotations2,attrs2 = readwrite.read()
     assert bbox_df.equals(bbox_df2)
     assert splits == splits2
     assert termination_annotations == termination_annotations2
+    assert attrs == attrs2
 
 
 @pytest.mark.parametrize("cls", [FilesPropsIO])
@@ -38,7 +40,7 @@ def test_direct_read_fn(trackarr_from_name, tmp_path):
     bbox_df.to_csv(tmp_path/"testarr.csv")
     with open(tmp_path/"testarr.json", "w") as file:
         json.dump(
-            {"splits": splits, "termination_annotations": termination_annotations},
+            {"splits": splits, "termination_annotations": termination_annotations, "attrs":{"test": "test"}},
             file,
         )
     ta2 = tta.read_files(ta.array, tmp_path/"testarr.csv", tmp_path/"testarr.json")
