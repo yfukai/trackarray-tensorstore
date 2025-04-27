@@ -97,6 +97,8 @@ class FilesPropsIO:
         if dataframe_filetype is None:
             if bboxes_df_file_path.suffix in FilesPropsIO.EXTENSION_MAP.values():
                 ext = bboxes_df_file_path.suffix
+                dataframe_filetype = {v:k 
+                    for k, v in FilesPropsIO.EXTENSION_MAP.items()}[ext]
             else:
                 raise ValueError(
                     f"Unsupported file extension: {bboxes_df_file_path.suffix}"
