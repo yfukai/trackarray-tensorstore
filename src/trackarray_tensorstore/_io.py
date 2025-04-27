@@ -76,7 +76,7 @@ class FilesPropsIO:
         self,
         bboxes_df_file_path: Union[str, Path],
         props_json_file_path: Optional[Union[str, Path]] = None,
-        dataframe_filetype: "FilesPropsIO.DataFileType" = DataFileType.CSV,
+        dataframe_filetype: "Optional[FilesPropsIO.DataFileType]" = None,
     ) -> None:
         """
         Initialize a FilesPropsIO instance.
@@ -89,11 +89,15 @@ class FilesPropsIO:
             File path to the properties JSON file. If not provided, it is inferred
             by replacing the extension of bboxes_df_file_path with .json.
         dataframe_filetype : FilesPropsIO.DataFileType, optional
-            The file type of the bounding boxes DataFrame. Default is
-            DataFileType.CSV.
+            The file type of the bounding boxes DataFrame. 
+            If not provided, it is inferred
+            from the file extension. The default is None.
         """
         bboxes_df_file_path = Path(bboxes_df_file_path)
-        ext = FilesPropsIO.EXTENSION_MAP[dataframe_filetype]
+        if dataframe_filetype is None:
+            ext = FilesPropsIO.EXTENSION_MAP[bboxes_df_file_path.suffix]
+        else:
+            ext = FilesPropsIO.EXTENSION_MAP[dataframe_filetype]
         if props_json_file_path is None:
             props_json_file_path = bboxes_df_file_path.with_suffix(".json")
         elif isinstance(props_json_file_path, (str, Path)):

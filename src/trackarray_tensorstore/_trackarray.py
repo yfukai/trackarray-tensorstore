@@ -628,9 +628,9 @@ class TrackArray:
                 self.splits[int(new_trackid)] = daughters
             # Update termination_annotations
             if trackid in self.termination_annotations:
-                self.termination_annotations[
-                    int(new_trackid)
-                ] = self.termination_annotations.pop(int(trackid))
+                self.termination_annotations[int(new_trackid)] = (
+                    self.termination_annotations.pop(int(trackid))
+                )
         else:
             # Update splits
             _splits = self.splits.copy()
