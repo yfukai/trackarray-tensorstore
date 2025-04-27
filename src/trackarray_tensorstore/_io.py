@@ -95,7 +95,12 @@ class FilesPropsIO:
         """
         bboxes_df_file_path = Path(bboxes_df_file_path)
         if dataframe_filetype is None:
-            ext = FilesPropsIO.EXTENSION_MAP[bboxes_df_file_path.suffix]
+            if bboxes_df_file_path.suffix in FilesPropsIO.EXTENSION_MAP.values():
+                ext = bboxes_df_file_path.suffix
+            else:
+                raise ValueError(
+                    f"Unsupported file extension: {bboxes_df_file_path.suffix}"
+                )
         else:
             ext = FilesPropsIO.EXTENSION_MAP[dataframe_filetype]
         if props_json_file_path is None:
