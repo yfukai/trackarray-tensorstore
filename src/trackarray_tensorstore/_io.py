@@ -195,7 +195,7 @@ class FilesPropsIO:
             json.dump(
                 {
                     "splits": splits,
-                    "termination_annotations": termination_annotations,
+                    "termination_annotations": {int(k): str(v) for k,v in termination_annotations.items()},
                     "attrs": attrs,
                 },
                 file,

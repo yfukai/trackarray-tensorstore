@@ -554,7 +554,7 @@ class TrackArray:
         bboxes_df = bboxes_df[bboxes_df.index > frame]
         for frame in bboxes_df.index:
             self.delete_mask(frame, trackid, txn)
-        self.termination_annotations[trackid] = annotation
+        self.termination_annotations[trackid] = str(annotation)
         self.splits.pop(int(trackid), None)
 
     def break_track(
